@@ -18,6 +18,7 @@ erDiagram
         int grid_size 
         int max_players
         int time_limit_seconds
+        int card_visible_time_seconds
         boolean has_started
         datetime created_at
     }
@@ -51,6 +52,7 @@ erDiagram
         int theme_id FK
         int grid_size 
         int time_limit_seconds
+        int card_visible_time_seconds
     }
 
     game_players {
