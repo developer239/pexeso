@@ -29,7 +29,7 @@ graph LR
     B[Login Screen]
     B --> C[Enter Email & Password]
     C --> D{User Selects Action}
-    D -->|Login| E[Login Validation]
+    D -->|Login| E[Login Process]
     D -->|Register| F[Registration Process]
     E -->|Valid Credentials| G[Lobby Screen]
     E -->|Invalid Credentials| H[Show Error, Retry]
