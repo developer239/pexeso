@@ -1,0 +1,23 @@
+# compiled output
+/.turbo
+/dist
+/node_modules
+
+# Logs
+logs
+*.log
+yarn-debug.log*
+yarn-error.log*
+
+# environment variables
+.env
+
+# OS
+.DS_Store
+.data
+
+# Tests
+/coverage
+
+# Docker
+/.db/data

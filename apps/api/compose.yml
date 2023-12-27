@@ -1,0 +1,38 @@
+name: backend-nest-template-api
+
+services:
+  database:
+    image: postgres:14-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-database
+    environment:
+      POSTGRES_URL: ${DATABASE_URL}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - ./.db/data:/var/lib/postgresql/data:delegated
+      - ./.db/init:/docker-entrypoint-initdb.d
+    ports:
+      - '5432:5432'
+
+  api:
+    build:
+      context: .
+      target: ${COMPOSE_PROFILES:-dev}
+    container_name: ${COMPOSE_PROJECT_NAME}-api
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@database:5432/${COMPOSE_PROJECT_NAME}-development
+      - PORT=3000
+      - NODE_ENV=local
+      - RUN_OPTIONS
+    ports:
+      - '3000:3000'
+      - '9222:9222'
+      - '9223:9223'
+    volumes:
+      - ./src:/app/src:delegated
+      - ./docs:/app/docs:delegated
+    profiles:
+      - dev
+      - prod
