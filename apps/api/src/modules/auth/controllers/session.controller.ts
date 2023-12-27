@@ -14,6 +14,7 @@ import { UsernameLoginResponseDTO } from 'src/modules/auth/dto/username-login.dt
 import { User } from 'src/modules/auth/entities/user.entity'
 import { GetUserPayload } from 'src/modules/auth/strategies/user.decorator'
 import { IpAddress } from 'src/utils/decorators/ip-address.decorator'
+import { UsernameAuthGuard } from '../guards/username.guard'
 
 @ApiTags('Session')
 @Controller({
@@ -23,7 +24,7 @@ import { IpAddress } from 'src/utils/decorators/ip-address.decorator'
 export class SessionController {
   constructor(public service: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(UsernameAuthGuard)
   @SerializeOptions({
     groups: ['me'],
   })

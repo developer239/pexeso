@@ -31,6 +31,7 @@ describe('[users] controller', () => {
       expect(response.body).toStrictEqual({
         id: user.id,
         username: user.username,
+        lastActive: user.lastActive.toISOString(),
       })
     })
 

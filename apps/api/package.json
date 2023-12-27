@@ -31,7 +31,6 @@
     "joi": "17.11.0",
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
-    "passport-local": "1.0.0",
     "pg": "8.11.3",
     "pg-connection-string": "2.6.2",
     "reflect-metadata": "0.2.1",

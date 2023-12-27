@@ -13,13 +13,11 @@ export class AuthService {
   ) {}
 
   async validateUserByUsername(username: string): Promise<User | null> {
-    const user = await this.usersRepository.findOne({ username })
+    let user = await this.usersRepository.findOne({ username })
 
     if (!user) {
-      return null
-    }
-
-    if (this.isRecentlyActive(user)) {
+      user = await this.usersRepository.create(username)
+    } else if (this.isRecentlyActive(user)) {
       return null
     }
 

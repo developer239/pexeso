@@ -13,8 +13,8 @@ import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
 import { JwtRefreshTokenStrategy } from 'src/modules/auth/strategies/jwt-refresh.strategy'
 import { JwtStrategy } from 'src/modules/auth/strategies/jwt.strategy'
-import { LocalStrategy } from 'src/modules/auth/strategies/local.strategy'
 import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
+import { UsernameAuthGuard } from './guards/username.guard'
 
 @Module({
   imports: [
@@ -37,9 +37,9 @@ import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
     AuthService,
     JwtStrategy,
     JwtRefreshTokenStrategy,
-    LocalStrategy,
     RefreshTokenRepository,
     UsersRepository,
+    UsernameAuthGuard,
   ],
   exports: [AuthService],
 })

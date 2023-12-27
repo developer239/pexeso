@@ -36,12 +36,13 @@ describe('[session] controller', () => {
         user: {
           id: user.id,
           username: user.username,
+          lastActive: user.lastActive.toISOString(),
         },
       })
     })
 
     describe('when user does not exist', () => {
-      it('should return 401 Unauthorized', async () => {
+      it('should create new user', async () => {
         // Arrange
         const user = testingEntityService.createUserData()
 
@@ -54,7 +55,16 @@ describe('[session] controller', () => {
           })
 
         // Assert
-        expect(response.status).toBe(401)
+        expect(response.status).toBe(200)
+        expect(response.body).toStrictEqual({
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          user: {
+            id: expect.any(Number),
+            username: user.username,
+            lastActive: expect.any(String),
+          },
+        })
       })
     })
   })

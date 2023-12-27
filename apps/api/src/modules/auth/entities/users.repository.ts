@@ -10,7 +10,8 @@ export class UsersRepository {
   ) {}
 
   create(username: string) {
-    return this.usersRepository.save({ username })
+    const newUser = this.usersRepository.create({ username })
+    return this.usersRepository.save(newUser)
   }
 
   findOne(fields: FindOptionsWhere<User>, relations?: string[]) {

@@ -41,6 +41,8 @@ export class User extends EntityHelper {
 
   @BeforeInsert()
   updateLastActive() {
-    this.lastActive = new Date()
+    if (!this.lastActive) {
+      this.lastActive = new Date()
+    }
   }
 }
