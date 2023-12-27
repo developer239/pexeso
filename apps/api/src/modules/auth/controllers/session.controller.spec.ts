@@ -15,18 +15,17 @@ describe('[session] controller', () => {
   let testingEntityService: UserTestingService
   let jwtService: JwtService
 
-  describe('POST /email', () => {
+  describe('POST /username', () => {
     it('should find user by credentials', async () => {
       // Arrange
-      const { user, meta } = await testingEntityService.createTestUser()
+      const { user } = await testingEntityService.createTestUser()
 
       // Act
       const server = app.getHttpServer()
       const response = await request(server)
-        .post('/api/v1/session/email')
+        .post('/api/v1/session/username')
         .send({
-          email: user.email,
-          password: meta.plainPassword,
+          username: user.username,
         })
 
       // Assert
@@ -36,9 +35,7 @@ describe('[session] controller', () => {
         refreshToken: expect.any(String),
         user: {
           id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          username: user.username,
         },
       })
     })
@@ -51,29 +48,9 @@ describe('[session] controller', () => {
         // Act
         const server = app.getHttpServer()
         const response = await request(server)
-          .post('/api/v1/session/email')
+          .post('/api/v1/session/username')
           .send({
-            email: user.email,
-            password: user.password,
-          })
-
-        // Assert
-        expect(response.status).toBe(401)
-      })
-    })
-
-    describe('when password is incorrect', () => {
-      it('should return 401 Unauthorized', async () => {
-        // Arrange
-        const { user } = await testingEntityService.createTestUser()
-
-        // Act
-        const server = app.getHttpServer()
-        const response = await request(server)
-          .post('/api/v1/session/email')
-          .send({
-            email: user.email,
-            password: 'wrong-password',
+            username: user.username,
           })
 
         // Assert

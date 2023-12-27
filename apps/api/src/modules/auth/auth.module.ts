@@ -5,7 +5,6 @@ import { PassportModule } from '@nestjs/passport'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { authConfig, AuthConfigType } from 'src/config/auth.config'
 import { AuthService } from 'src/modules/auth/auth.service'
-import { AdminController } from 'src/modules/auth/controllers/admin.controller'
 import { SessionController } from 'src/modules/auth/controllers/session.controller'
 import { UsersController } from 'src/modules/auth/controllers/users.controller'
 import { RefreshTokenRepository } from 'src/modules/auth/entities/refresh-token-repository'
@@ -32,7 +31,7 @@ import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
     }),
     TypeOrmModule.forFeature([User, RefreshToken]),
   ],
-  controllers: [UsersController, SessionController, AdminController],
+  controllers: [UsersController, SessionController],
   providers: [
     DoesNotExist,
     AuthService,

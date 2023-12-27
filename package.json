@@ -17,6 +17,7 @@
     "@commitlint/cli": "18.4.3",
     "@linters/commitlint-config": "1.8.0",
     "@linters/prettier-config": "1.4.1",
+    "eslint": "^8.56.0",
     "husky": "8.0.3",
     "lint-staged": "15.2.0",
     "prettier": "3.1.1",

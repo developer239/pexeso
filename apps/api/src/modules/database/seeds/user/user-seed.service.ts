@@ -13,16 +13,10 @@ export class UserSeedService implements ISeedService {
 
   public async run() {
     await this.createUser({
-      firstName: 'Joane',
-      lastName: 'Doe',
-      email: 'joane@doe.com',
-      password: 'Lwo4321',
+      username: 'Joane',
     })
     await this.createUser({
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@doe.com',
-      password: 'Lwo4321',
+      username: 'John',
     })
   }
 

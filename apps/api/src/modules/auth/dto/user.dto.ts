@@ -9,22 +9,7 @@ export class UserDTO {
   @IsNotEmpty()
   readonly id: number
 
-  @ApiProperty({
-    example: 'owl@gmail.com',
-    description: 'Your wise owl email address.',
-  })
+  @ApiProperty()
   @IsNotEmpty()
-  readonly email: string
-
-  @ApiProperty({
-    example: 'Owl',
-  })
-  @IsNotEmpty()
-  readonly firstName: string
-
-  @ApiProperty({
-    example: 'Bert',
-  })
-  @IsNotEmpty()
-  readonly lastName: string
+  readonly username: string
 }
