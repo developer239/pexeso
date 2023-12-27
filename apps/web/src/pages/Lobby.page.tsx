@@ -1,10 +1,13 @@
 import { Title } from '@mantine/core'
 import React from 'react'
+import { useUsersControllerMe } from 'src/api/apiComponents'
 
-interface ILobbyPageProps {
-  readonly username: string
+export const LobbyPage = () => {
+  const me = useUsersControllerMe({})
+
+  if (me.isLoading) {
+    return <Title>Loading...</Title>
+  }
+
+  return <Title>Welcome, {me.data?.username}</Title>
 }
-
-export const LobbyPage = ({ username }: ILobbyPageProps) => (
-  <Title>Welcome, {username}</Title>
-)

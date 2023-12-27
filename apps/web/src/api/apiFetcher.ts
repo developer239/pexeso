@@ -4,7 +4,7 @@ const baseUrl = 'http://localhost:8080' // TODO add your baseUrl
 
 export type ErrorWrapper<TError> =
   | TError
-  | { status: 'unknown'; payload: string }
+  | { status: 'unknown'; payload: string; message?: string }
 
 export type ApiFetcherOptions<TBody, THeaders, TQueryParams, TPathParams> = {
   url: string
@@ -93,11 +93,10 @@ export async function apiFetch<
       // if it is not a json response, assume it is a blob and cast it to TData
       return (await response.blob()) as unknown as TData
     }
-  } catch (e) {
+  } catch (e: any) {
     let errorObject: Error = {
       name: 'unknown' as const,
-      message:
-        e instanceof Error ? `Network error (${e.message})` : 'Network error',
+      message: e.message || 'Unknown error',
       stack: e as string,
     }
     throw errorObject

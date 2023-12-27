@@ -18,7 +18,14 @@ export class AuthService {
     if (!user) {
       user = await this.usersRepository.create(username)
     } else if (this.isRecentlyActive(user)) {
-      return null
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          message:
+            'Username currently taken. Please, select different username or try again later.',
+        },
+        HttpStatus.UNAUTHORIZED
+      )
     }
 
     return user
@@ -57,6 +64,8 @@ export class AuthService {
       refreshToken,
       ipAddress
     )
+
+    await this.usersRepository.updateLastActiveAt(user.id)
 
     return {
       accessToken: token,

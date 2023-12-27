@@ -20,4 +20,10 @@ export class UsersRepository {
       relations,
     })
   }
+
+  updateLastActiveAt(userId: number) {
+    return this.usersRepository.update(userId, {
+      lastActive: new Date(),
+    })
+  }
 }

@@ -1,17 +1,26 @@
 import { TextInput, Button, Title, Center } from '@mantine/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useSessionControllerLogin } from 'src/api/apiComponents'
 
-interface ILoginPageProps {
-  readonly onLogin: (username: string) => void
-}
-
-export const LoginPage = ({ onLogin }: ILoginPageProps) => {
+export const LoginPage = () => {
   const [username, setUsername] = useState<string>('')
+  const navigate = useNavigate()
+
+  const { data, mutate, error } = useSessionControllerLogin()
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onLogin(username)
+
+    mutate({ body: { username } })
   }
+
+  useEffect(() => {
+    if (data?.accessToken) {
+      localStorage.setItem('accessToken', data.accessToken)
+      navigate('/lobby')
+    }
+  }, [data])
 
   return (
     <>
@@ -24,6 +33,7 @@ export const LoginPage = ({ onLogin }: ILoginPageProps) => {
           value={username}
           onChange={(event) => setUsername(event.currentTarget.value)}
           required
+          error={error?.message}
         />
         <Button type="submit" fullWidth mt="xl">
           Join
