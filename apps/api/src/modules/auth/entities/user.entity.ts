@@ -20,7 +20,7 @@ export class User extends EntityHelper {
   @Column({ unique: true, nullable: false, length: 50 })
   username: string
 
-  @Expose({ groups: ['me'] })
+  @Exclude({ toPlainOnly: true })
   @Column({ type: 'timestamptz', nullable: false })
   lastActive: Date
 

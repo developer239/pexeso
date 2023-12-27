@@ -13,7 +13,7 @@
   "scripts": {
     "build": "nest build",
     "dev": "NODE_ENV=development nest start --watch",
-    "test": "npx vitest --threads=false",
+    "test": "vitest --no-threads",
     "lint": "eslint --ext .ts src"
   },
   "dependencies": {

@@ -36,7 +36,6 @@ describe('[session] controller', () => {
         user: {
           id: user.id,
           username: user.username,
-          lastActive: user.lastActive.toISOString(),
         },
       })
     })
@@ -62,7 +61,6 @@ describe('[session] controller', () => {
           user: {
             id: expect.any(Number),
             username: user.username,
-            lastActive: expect.any(String),
           },
         })
       })

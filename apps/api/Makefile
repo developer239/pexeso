@@ -1,7 +1,7 @@
 ## Variables ##
 
 BIN := node_modules/.bin
-JEST_OVERRIDES := --threads=false
+JEST_OVERRIDES := --no-threads
 DATASOURCE := src/modules/database/data-source.ts
 
 ## Rules ##
@@ -25,15 +25,6 @@ compile:
 
 run: compile
 	node -r $(BOOTSTRAP) ${RUN_OPTIONS} ./dist/main.js
-
-test:
-	NODE_ENV=test npx vitest ${JEST_OVERRIDES}
-
-test-watch:
-	NODE_ENV=test npx vitest --watch ${JEST_OVERRIDES}
-
-coverage:
-	NODE_ENV=test npx vitest --coverage ${JEST_OVERRIDES}
 
 format-check:
 	npx prettier --check .
