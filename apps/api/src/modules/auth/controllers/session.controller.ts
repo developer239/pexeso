@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -10,7 +11,10 @@ import { AuthGuard } from '@nestjs/passport'
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from 'src/modules/auth/auth.service'
 import { RefreshTokenResponseDTO } from 'src/modules/auth/dto/refresh-token.dto'
-import { UsernameLoginResponseDTO } from 'src/modules/auth/dto/username-login.dto'
+import {
+  UsernameLoginRequestDTO,
+  UsernameLoginResponseDTO,
+} from 'src/modules/auth/dto/username-login.dto'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { GetUserPayload } from 'src/modules/auth/strategies/user.decorator'
 import { IpAddress } from 'src/utils/decorators/ip-address.decorator'
@@ -33,7 +37,11 @@ export class SessionController {
   @ApiOkResponse({
     type: UsernameLoginResponseDTO,
   })
-  public login(@GetUserPayload() user: User, @IpAddress() ipAddress) {
+  public login(
+    @Body() login: UsernameLoginRequestDTO,
+    @GetUserPayload() user: User,
+    @IpAddress() ipAddress
+  ) {
     return this.service.login(user, ipAddress)
   }
 

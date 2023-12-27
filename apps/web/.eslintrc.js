@@ -1,6 +1,5 @@
 module.exports = {
   extends: [
-    'mantine',
     '@linters/eslint-config-react',
     '@linters/eslint-config-typescript',
     'prettier',

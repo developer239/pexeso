@@ -12,11 +12,14 @@
     "vitest:watch": "vitest",
     "test": "vitest",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "codegen:init": "npx openapi-codegen init",
+    "codegen:run": "npx openapi-codegen gen api"
   },
   "dependencies": {
     "@mantine/core": "7.3.2",
     "@mantine/hooks": "7.3.2",
+    "@tanstack/react-query": "^5.15.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.21.0"
@@ -25,6 +28,8 @@
     "@linters/eslint-config-react": "^1.15.0",
     "@linters/eslint-config-typescript": "^1.20.0",
     "@linters/stylelint-config": "^1.6.3",
+    "@openapi-codegen/cli": "^2.0.0",
+    "@openapi-codegen/typescript": "^8.0.0",
     "@storybook/addon-essentials": "7.6.6",
     "@storybook/addon-interactions": "7.6.6",
     "@storybook/addon-links": "7.6.6",
