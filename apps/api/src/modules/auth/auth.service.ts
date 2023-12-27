@@ -15,9 +15,15 @@ export class AuthService {
   async validateUserByUsername(username: string): Promise<User | null> {
     const user = await this.usersRepository.findOne({ username })
 
-    // TODO: return null if user was recently active
+    if (!user) {
+      return null
+    }
 
-    return null
+    if (this.isRecentlyActive(user)) {
+      return null
+    }
+
+    return user
   }
 
   async validateUserById(userId: number) {
@@ -37,9 +43,6 @@ export class AuthService {
   }
 
   async login(user: User, ipAddress: string) {
-    // TODO: if user doesn't exist create one
-    // TODO: validate that the user was not recently active
-
     const token = this.jwtService.sign({
       id: user.id,
     })
@@ -70,5 +73,13 @@ export class AuthService {
     })
 
     return { accessToken }
+  }
+
+  isRecentlyActive(user: User) {
+    const RECENTLY_ACTIVE_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
+    const now = new Date().getTime()
+    const lastActive = user.lastActive.getTime()
+
+    return now - lastActive < RECENTLY_ACTIVE_THRESHOLD
   }
 }

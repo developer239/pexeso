@@ -55,7 +55,6 @@ seed-database:
 
 migration-generate:
 	npx env-cmd ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource=$(DATASOURCE) migration:generate src/modules/database/migrations/$(name)
-	npx env-cmd -f .env env-cmd -f .env.test ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource=$(DATASOURCE) migration:generate src/modules/database/migrations/$(name)
 
 migration-create:
 	npx env-cmd ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create src/modules/database/migrations/$(name)

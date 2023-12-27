@@ -9,6 +9,10 @@ export class UsersRepository {
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
+  create(username: string) {
+    return this.usersRepository.save({ username })
+  }
+
   findOne(fields: FindOptionsWhere<User>, relations?: string[]) {
     return this.usersRepository.findOne({
       where: fields,

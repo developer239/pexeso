@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm'
 import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity'
 import { EntityHelper } from 'src/utils/entity-helper'
@@ -37,4 +38,9 @@ export class User extends EntityHelper {
   @Exclude({ toPlainOnly: true })
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date
+
+  @BeforeInsert()
+  updateLastActive() {
+    this.lastActive = new Date()
+  }
 }

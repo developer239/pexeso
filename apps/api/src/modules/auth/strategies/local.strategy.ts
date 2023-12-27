@@ -2,10 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-local'
 import { AuthService } from 'src/modules/auth/auth.service'
+import { UsersRepository } from '../entities/users.repository'
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersRepository: UsersRepository
+  ) {
     super({
       usernameField: 'username',
       // TODO: remove this field if possible
@@ -14,7 +18,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(username: string): Promise<any> {
-    const user = await this.authService.validateUserByUsername(username)
+    let user = await this.authService.validateUserByUsername(username)
+
+    if (!user) {
+      user = await this.usersRepository.create(username)
+    }
+
     if (!user) {
       throw new HttpException(
         {

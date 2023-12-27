@@ -5,6 +5,11 @@
   "engines": {
     "node": "18"
   },
+  "workspaces": {
+    "nohoist": [
+      "**/typeorm"
+    ]
+  },
   "scripts": {
     "build": "nest build",
     "dev": "NODE_ENV=development nest start --watch",
@@ -33,7 +38,7 @@
     "request-ip": "3.3.0",
     "rxjs": "7.8.1",
     "swagger-ui-express": "5.0.0",
-    "typeorm": "0.3.17"
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
     "@linters/eslint-config-node": "1.13.0",
