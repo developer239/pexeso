@@ -1,0 +1,26 @@
+{
+  "name": "pexeso",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write '*/**/*.{ts,tsx,css,md,json}'",
+    "prepare:husky": "husky install",
+    "lint-staged": "lint-staged"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "18.4.3",
+    "@linters/commitlint-config": "1.8.0",
+    "@linters/prettier-config": "1.4.1",
+    "husky": "8.0.3",
+    "lint-staged": "15.2.0",
+    "prettier": "3.1.1",
+    "turbo": "latest"
+  },
+  "packageManager": "yarn@1.22.17"
+}
