@@ -18,7 +18,6 @@ import { EntityHelper } from 'src/utils/entity-helper'
 export class User extends EntityHelper {
   @PrimaryGeneratedColumn() id: number
 
-  @Expose({ groups: ['me'] })
   @Column({ unique: true, nullable: false, length: 50 })
   username: string
 

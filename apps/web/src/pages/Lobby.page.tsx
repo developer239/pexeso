@@ -1,48 +1,20 @@
-import { Button, Title } from '@mantine/core'
-import { useQuery } from '@tanstack/react-query'
 import React from 'react'
-import { useUsersControllerMe } from 'src/api/apiComponents'
-import {
-  Game,
-  CreateGameRequestDto,
-  WebSocketEventEvent,
-} from 'src/api/apiSchemas'
-import { useSocketMutation } from 'src/hooks/useSocketMutation'
+import { User } from 'src/api/apiSchemas'
+import { AvailableGamesTable } from 'src/components/AvailableGamesTable'
+import { CreateGameButton } from 'src/components/CreateGameButton'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
 
-export const LobbyPage: React.FC = () => {
-  const me = useUsersControllerMe({})
-  useSocketQuery(me.data?.id)
+export interface IProps {
+  readonly me: User
+}
 
-  const { data: games } = useQuery<Game[]>({
-    queryKey: ['games', 'list'],
-  })
-
-  const createGame = useSocketMutation<CreateGameRequestDto>(
-    WebSocketEventEvent.createGame
-  )
-
-  const handleCreateGame = () => {
-    if (me.data?.id) {
-      createGame({ hostId: me.data.id })
-    }
-  }
-
-  if (me.isLoading) {
-    return <Title>Loading...</Title>
-  }
+export const LobbyPage: React.FC<IProps> = ({ me }) => {
+  useSocketQuery(me.id)
 
   return (
     <>
-      <Title>Welcome, {me.data?.username}</Title>
-      <Button onClick={handleCreateGame}>Create New Game</Button>
-      <div>
-        {games?.map((game) => (
-          <div key={game.id}>
-            Id: {game.id} | Host: {game.host.id}
-          </div>
-        ))}
-      </div>
+      <CreateGameButton me={me} />
+      <AvailableGamesTable me={me} />
     </>
   )
 }

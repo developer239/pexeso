@@ -14,16 +14,6 @@ export enum WebSocketEventEvent {
   exception = 'exception',
 }
 
-export type MeDTO = {
-  /**
-   * Unique user ID.
-   *
-   * @example 1
-   */
-  id?: number
-  username?: string
-}
-
 export type UsernameLoginRequestDTO = {
   username: string
 }
@@ -40,12 +30,17 @@ export type User = {
 
 export type UsernameLoginResponseDTO = {
   accessToken: string
-  refreshToken: string
   user: User
 }
 
-export type RefreshTokenResponseDTO = {
-  accessToken: string
+export type MeDTO = {
+  /**
+   * Unique user ID.
+   *
+   * @example 1
+   */
+  id?: number
+  username?: string
 }
 
 export type CreateGameRequestDto = {

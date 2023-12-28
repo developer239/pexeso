@@ -9,42 +9,6 @@ import type * as Fetcher from './apiFetcher'
 import { apiFetch } from './apiFetcher'
 import type * as Schemas from './apiSchemas'
 
-export type UsersControllerMeError = Fetcher.ErrorWrapper<undefined>
-
-export type UsersControllerMeVariables = ApiContext['fetcherOptions']
-
-export const fetchUsersControllerMe = (
-  variables: UsersControllerMeVariables,
-  signal?: AbortSignal
-) =>
-  apiFetch<Schemas.MeDTO, UsersControllerMeError, undefined, {}, {}, {}>({
-    url: '/api/v1/users/me',
-    method: 'get',
-    ...variables,
-    signal,
-  })
-
-export const useUsersControllerMe = <TData = Schemas.MeDTO>(
-  variables: UsersControllerMeVariables,
-  options?: Omit<
-    reactQuery.UseQueryOptions<Schemas.MeDTO, UsersControllerMeError, TData>,
-    'queryKey' | 'queryFn' | 'initialData'
-  >
-) => {
-  const { fetcherOptions, queryOptions, queryKeyFn } = useApiContext(options)
-  return reactQuery.useQuery<Schemas.MeDTO, UsersControllerMeError, TData>({
-    queryKey: queryKeyFn({
-      path: '/api/v1/users/me',
-      operationId: 'usersControllerMe',
-      variables,
-    }),
-    queryFn: ({ signal }) =>
-      fetchUsersControllerMe({ ...fetcherOptions, ...variables }, signal),
-    ...options,
-    ...queryOptions,
-  })
-}
-
 export type SessionControllerLoginError = Fetcher.ErrorWrapper<undefined>
 
 export type SessionControllerLoginVariables = {
@@ -86,43 +50,76 @@ export const useSessionControllerLogin = (
   })
 }
 
-export type SessionControllerRefreshTokenError = Fetcher.ErrorWrapper<undefined>
+export type SessionControllerLogoutError = Fetcher.ErrorWrapper<undefined>
 
-export type SessionControllerRefreshTokenVariables =
-  ApiContext['fetcherOptions']
+export type SessionControllerLogoutVariables = ApiContext['fetcherOptions']
 
-export const fetchSessionControllerRefreshToken = (
-  variables: SessionControllerRefreshTokenVariables,
+export const fetchSessionControllerLogout = (
+  variables: SessionControllerLogoutVariables,
   signal?: AbortSignal
 ) =>
-  apiFetch<
-    Schemas.RefreshTokenResponseDTO,
-    SessionControllerRefreshTokenError,
-    undefined,
-    {},
-    {},
-    {}
-  >({ url: '/api/v1/session/refresh', method: 'post', ...variables, signal })
+  apiFetch<undefined, SessionControllerLogoutError, undefined, {}, {}, {}>({
+    url: '/api/v1/session/logout',
+    method: 'post',
+    ...variables,
+    signal,
+  })
 
-export const useSessionControllerRefreshToken = (
+export const useSessionControllerLogout = (
   options?: Omit<
     reactQuery.UseMutationOptions<
-      Schemas.RefreshTokenResponseDTO,
-      SessionControllerRefreshTokenError,
-      SessionControllerRefreshTokenVariables
+      undefined,
+      SessionControllerLogoutError,
+      SessionControllerLogoutVariables
     >,
     'mutationFn'
   >
 ) => {
   const { fetcherOptions } = useApiContext()
   return reactQuery.useMutation<
-    Schemas.RefreshTokenResponseDTO,
-    SessionControllerRefreshTokenError,
-    SessionControllerRefreshTokenVariables
+    undefined,
+    SessionControllerLogoutError,
+    SessionControllerLogoutVariables
   >({
-    mutationFn: (variables: SessionControllerRefreshTokenVariables) =>
-      fetchSessionControllerRefreshToken({ ...fetcherOptions, ...variables }),
+    mutationFn: (variables: SessionControllerLogoutVariables) =>
+      fetchSessionControllerLogout({ ...fetcherOptions, ...variables }),
     ...options,
+  })
+}
+
+export type SessionControllerMeError = Fetcher.ErrorWrapper<undefined>
+
+export type SessionControllerMeVariables = ApiContext['fetcherOptions']
+
+export const fetchSessionControllerMe = (
+  variables: SessionControllerMeVariables,
+  signal?: AbortSignal
+) =>
+  apiFetch<Schemas.MeDTO, SessionControllerMeError, undefined, {}, {}, {}>({
+    url: '/api/v1/session/me',
+    method: 'get',
+    ...variables,
+    signal,
+  })
+
+export const useSessionControllerMe = <TData = Schemas.MeDTO>(
+  variables: SessionControllerMeVariables,
+  options?: Omit<
+    reactQuery.UseQueryOptions<Schemas.MeDTO, SessionControllerMeError, TData>,
+    'queryKey' | 'queryFn' | 'initialData'
+  >
+) => {
+  const { fetcherOptions, queryOptions, queryKeyFn } = useApiContext(options)
+  return reactQuery.useQuery<Schemas.MeDTO, SessionControllerMeError, TData>({
+    queryKey: queryKeyFn({
+      path: '/api/v1/session/me',
+      operationId: 'sessionControllerMe',
+      variables,
+    }),
+    queryFn: ({ signal }) =>
+      fetchSessionControllerMe({ ...fetcherOptions, ...variables }, signal),
+    ...options,
+    ...queryOptions,
   })
 }
 
@@ -164,9 +161,9 @@ export const useHomeControllerAppInfo = <TData = undefined>(
 
 export type QueryOperation =
   | {
-      path: '/api/v1/users/me'
-      operationId: 'usersControllerMe'
-      variables: UsersControllerMeVariables
+      path: '/api/v1/session/me'
+      operationId: 'sessionControllerMe'
+      variables: SessionControllerMeVariables
     }
   | {
       path: '/'
