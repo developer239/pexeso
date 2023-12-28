@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { authConfig, AuthConfigType } from 'src/config/auth.config'
 import { AuthService } from 'src/modules/auth/auth.service'
 import { SessionController } from 'src/modules/auth/controllers/session.controller'
-import { UsersController } from 'src/modules/auth/controllers/users.controller'
 import { RefreshTokenRepository } from 'src/modules/auth/entities/refresh-token-repository'
 import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity'
 import { User } from 'src/modules/auth/entities/user.entity'
@@ -33,7 +32,7 @@ import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
     }),
     TypeOrmModule.forFeature([User, RefreshToken, Game, GamePlayer]),
   ],
-  controllers: [UsersController, SessionController],
+  controllers: [SessionController],
   providers: [
     DoesNotExist,
     AuthService,

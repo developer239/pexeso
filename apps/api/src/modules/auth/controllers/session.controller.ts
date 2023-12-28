@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,6 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from 'src/modules/auth/auth.service'
+import { MeDTO } from 'src/modules/auth/dto/me.dto'
 import { RefreshTokenResponseDTO } from 'src/modules/auth/dto/refresh-token.dto'
 import {
   UsernameLoginRequestDTO,
@@ -62,5 +64,19 @@ export class SessionController {
   })
   public refreshToken(@GetUserPayload() user: User): { accessToken: string } {
     return this.service.refreshAccessToken(user)
+  }
+
+  @ApiBearerAuth()
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    type: MeDTO,
+  })
+  public me(@GetUserPayload() user: User) {
+    return user
   }
 }
