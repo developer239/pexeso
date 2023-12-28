@@ -2,7 +2,6 @@ import { Grid, Space } from '@mantine/core'
 import React from 'react'
 import { GameBoard } from 'src/components/GameBoard'
 import { GameFinishedModal } from 'src/components/GameFinishedModal'
-import { GameInfoWidget } from 'src/components/GameInfoWidget'
 import { GameOptionsWidget } from 'src/components/GameOptionsWIdget'
 import { GamePlayersWidget } from 'src/components/GamePlayersWidget'
 
@@ -14,8 +13,6 @@ export const GamePage = () => (
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 3 }} order={{ base: 1, md: 2 }}>
         <GameOptionsWidget />
-        <Space h="lg" />
-        <GameInfoWidget />
         <Space h="lg" />
         <GamePlayersWidget />
       </Grid.Col>
