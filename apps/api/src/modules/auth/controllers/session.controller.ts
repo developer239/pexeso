@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from 'src/modules/auth/auth.service'
 import { RefreshTokenResponseDTO } from 'src/modules/auth/dto/refresh-token.dto'
 import {
@@ -43,6 +43,16 @@ export class SessionController {
     @IpAddress() ipAddress
   ) {
     return this.service.login(user, ipAddress)
+  }
+
+  @ApiBearerAuth()
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+  })
+  public logout(@GetUserPayload() user: User) {
+    return this.service.logout(user)
   }
 
   @UseGuards(AuthGuard('jwt-refresh-token'))

@@ -4,6 +4,9 @@ import { RefreshTokenRepository } from 'src/modules/auth/entities/refresh-token-
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
 
+// TODO: move to env
+const LAST_ACTIVE_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -11,6 +14,28 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly refreshTokenRepository: RefreshTokenRepository
   ) {}
+
+  async logout(user: User) {
+    const userRecord = await this.usersRepository.findOne({
+      username: user.username,
+    })
+
+    if (!userRecord) {
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          message: 'unauthorized',
+        },
+        HttpStatus.UNAUTHORIZED
+      )
+    }
+
+    userRecord.lastActiveAt = new Date(
+      new Date().getTime() - LAST_ACTIVE_THRESHOLD
+    )
+
+    await this.usersRepository.save(userRecord)
+  }
 
   async validateUserByUsername(username: string): Promise<User | null> {
     let user = await this.usersRepository.findOne({ username })
@@ -83,10 +108,9 @@ export class AuthService {
   }
 
   isRecentlyActive(user: User) {
-    const RECENTLY_ACTIVE_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
     const now = new Date().getTime()
     const lastActive = user.lastActiveAt.getTime()
 
-    return now - lastActive < RECENTLY_ACTIVE_THRESHOLD
+    return now - lastActive < LAST_ACTIVE_THRESHOLD
   }
 }

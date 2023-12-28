@@ -26,4 +26,8 @@ export class UsersRepository {
       lastActiveAt: new Date(),
     })
   }
+
+  save(user: User) {
+    return this.usersRepository.save(user)
+  }
 }
