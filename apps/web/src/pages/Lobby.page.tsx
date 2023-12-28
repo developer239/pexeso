@@ -6,7 +6,6 @@ import { Game, CreateGameRequestDto } from 'src/api/apiSchemas'
 import { useSocketMutation } from 'src/hooks/useSocketMutation'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
 
-// TODO: sometimes games are not loaded on init for some reason
 export const LobbyPage: React.FC = () => {
   const me = useUsersControllerMe({})
   useSocketQuery(me.data?.id)

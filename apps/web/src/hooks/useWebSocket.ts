@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client'
 const url = 'http://localhost:8080/games'
 
 export const useWebSocket = () => {
-  const socketRef = useRef<Socket | null>(null)
+  const socketRef = useRef<Socket>()
 
   useEffect(() => {
     // Initialize socket connection only if it doesn't exist
@@ -16,7 +16,7 @@ export const useWebSocket = () => {
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect()
-        socketRef.current = null
+        socketRef.current = undefined
       }
     }
   }, [])

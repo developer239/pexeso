@@ -10,9 +10,7 @@ export const useSocketQuery = (userId: number | undefined) => {
   useEffect(() => {
     if (!socket) return
 
-    socket.on('connect', () => {
-      socket.emit(WebSocketEventEvent.requestAllGames)
-    })
+    socket.emit(WebSocketEventEvent.requestAllGames)
 
     socket.on(WebSocketEventEvent.allGames, (games: Game[]) => {
       queryClient.setQueryData(['games', 'list'], games)
