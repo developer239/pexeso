@@ -17,7 +17,7 @@ export const AvailableGamesTable: FC<IProps> = ({ me }) => {
     body: games?.map((game) => [
       game.id,
       game.host.username,
-      `${game.players.length}/${game.maxPlayers}`,
+      `${game.players?.length || 0}/${game.maxPlayers}`,
       <Button
         key={game.id}
         variant="light"

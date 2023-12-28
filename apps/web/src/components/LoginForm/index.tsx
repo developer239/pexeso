@@ -31,8 +31,9 @@ export const LoginForm = () => {
         onChange={(event) => setUsername(event.currentTarget.value)}
         required
         error={error?.message}
+        size="lg"
       />
-      <Button type="submit" fullWidth mt="xl">
+      <Button size="lg" type="submit" fullWidth mt="xl">
         Join
       </Button>
     </form>

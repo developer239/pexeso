@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { Game, WebSocketEventEvent } from 'src/api/apiSchemas'
-import { useWebSocket } from 'src/hooks/useWebSocket'
+import { useWebSocket } from 'src/contexts/WebSocketContext'
 
 export const useSocketQuery = (userId: number | undefined) => {
   const queryClient = useQueryClient()
