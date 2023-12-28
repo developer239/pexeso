@@ -25,7 +25,7 @@
 }
 
 .cardBack {
-    background-color: var(--mantine-color-dark-8);
+    background-color: light-dark(var(--mantine-color-dark-1), var(--mantine-color-dark-8));
     color: var(--mantine-color-white);
     display: flex;
     align-items: center;
