@@ -16,11 +16,23 @@ export class GameService {
     private readonly gamePlayerRepository: Repository<GamePlayer>
   ) {}
 
-  findGame(id: number) {
-    return this.gameRepository.findOne({
+  async findGame(id: number) {
+    const game = await this.gameRepository.findOne({
       where: { id },
       relations: ['host', 'players'],
     })
+
+    if (!game) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: 'Game not found',
+        },
+        HttpStatus.NOT_FOUND
+      )
+    }
+
+    return game
   }
 
   // TODO: set default setting from default-config table
@@ -29,10 +41,10 @@ export class GameService {
     if (!host) {
       throw new HttpException(
         {
-          status: 404,
+          status: HttpStatus.NOT_FOUND,
           message: 'User not found',
         },
-        404
+        HttpStatus.NOT_FOUND
       )
     }
 
@@ -74,10 +86,10 @@ export class GameService {
     if (!user || !game) {
       throw new HttpException(
         {
-          status: 404,
+          status: HttpStatus.NOT_FOUND,
           message: 'User or Game not found',
         },
-        404
+        HttpStatus.NOT_FOUND
       )
     }
 

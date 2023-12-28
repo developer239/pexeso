@@ -7,6 +7,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
+import { WebSocketEvents } from 'src/modules/game/dto/game.dto'
 import { GameService } from 'src/modules/game/services/game.service'
 
 @WebSocketGateway({
@@ -21,50 +22,54 @@ export class GameGateway implements OnGatewayInit {
   constructor(private readonly gameService: GameService) {}
 
   afterInit(/* server: Server */) {
-    // Additional initialization logic if needed
+    // Do something special
   }
 
-  @SubscribeMessage('requestAllGames')
+  @SubscribeMessage(WebSocketEvents.RequestAllGames)
   async handleRequestAllGames(@ConnectedSocket() client: Socket) {
     try {
       const games = await this.gameService.getAllGames()
-      client.emit('allGames', games)
+      client.emit(WebSocketEvents.ResponseAllGames, games)
     } catch (error) {
-      client.emit('exception', { message: error.message })
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
 
-  @SubscribeMessage('createGame')
+  @SubscribeMessage(WebSocketEvents.RequestCreateGame)
   async handleCreateGame(
     @MessageBody() hostId: number,
     @ConnectedSocket() client: Socket
   ) {
     try {
       const game = await this.gameService.createGame(hostId)
-      await client.join(`game-${game.id}`)
+      const roomId = this.getGameRoomId(game.id)
 
-      this.server.emit('gameCreated', game)
+      await client.join(roomId)
+
+      this.server.emit(WebSocketEvents.ResponseGameCreated, game)
     } catch (error) {
-      client.emit('exception', { message: error.message })
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
 
-  @SubscribeMessage('joinGame')
+  @SubscribeMessage(WebSocketEvents.RequestJoinGame)
   async handleJoinGame(
     @MessageBody() data: { userId: number; gameId: number },
     @ConnectedSocket() client: Socket
   ) {
     try {
       const game = await this.gameService.joinGame(data.userId, data.gameId)
-      await client.join(`game-${game.id}`)
+      const roomId = this.getGameRoomId(game.id)
 
-      this.server.to(`game-${game.id}`).emit('gameUpdated', game)
+      await client.join(roomId)
+
+      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
     } catch (error) {
-      client.emit('exception', { message: error.message })
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
 
-  @SubscribeMessage('leaveGame')
+  @SubscribeMessage(WebSocketEvents.RequestLeaveGame)
   async handleLeaveGame(
     @MessageBody() data: { userId: number; gameId: number },
     @ConnectedSocket() client: Socket
@@ -72,11 +77,17 @@ export class GameGateway implements OnGatewayInit {
     try {
       await this.gameService.leaveGame(data.userId, data.gameId)
       const game = await this.gameService.findGame(data.gameId)
+      const roomId = this.getGameRoomId(game.id)
 
-      await client.leave(`game-${data.gameId}`)
-      this.server.to(`game-${data.gameId}`).emit('gameUpdated', game)
+      await client.leave(roomId)
+
+      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
     } catch (error) {
-      client.emit('exception', { message: error.message })
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
+  }
+
+  getGameRoomId(id: number): string {
+    return `game-${id}`
   }
 }

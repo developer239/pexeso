@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
-import { UserDTO } from 'src/modules/auth/dto/user.dto'
+import { User } from 'src/modules/auth/dto/user.dto'
 import { lowerCaseTransformer } from 'src/utils/transformers/lower-case.transformer'
 
 export class UsernameLoginRequestDTO {
@@ -21,5 +21,5 @@ export class UsernameLoginResponseDTO {
   readonly refreshToken: string
 
   @ApiProperty()
-  readonly user: UserDTO
+  readonly user: User
 }
