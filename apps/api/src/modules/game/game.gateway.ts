@@ -7,7 +7,12 @@ import {
   MessageBody,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { WebSocketEvents } from 'src/modules/game/dto/game.dto'
+import {
+  WebSocketEvents,
+  CreateGameRequestDto,
+  LeaveGameRequestDto,
+  JoinGameRequestDto,
+} from 'src/modules/game/dto/game.dto'
 import { GameService } from 'src/modules/game/services/game.service'
 
 @WebSocketGateway({
@@ -37,11 +42,11 @@ export class GameGateway implements OnGatewayInit {
 
   @SubscribeMessage(WebSocketEvents.RequestCreateGame)
   async handleCreateGame(
-    @MessageBody() hostId: number,
+    @MessageBody() data: CreateGameRequestDto,
     @ConnectedSocket() client: Socket
   ) {
     try {
-      const game = await this.gameService.createGame(hostId)
+      const game = await this.gameService.createGame(data.hostId)
       const roomId = this.getGameRoomId(game.id)
 
       await client.join(roomId)
@@ -54,7 +59,7 @@ export class GameGateway implements OnGatewayInit {
 
   @SubscribeMessage(WebSocketEvents.RequestJoinGame)
   async handleJoinGame(
-    @MessageBody() data: { userId: number; gameId: number },
+    @MessageBody() data: JoinGameRequestDto,
     @ConnectedSocket() client: Socket
   ) {
     try {
@@ -71,7 +76,7 @@ export class GameGateway implements OnGatewayInit {
 
   @SubscribeMessage(WebSocketEvents.RequestLeaveGame)
   async handleLeaveGame(
-    @MessageBody() data: { userId: number; gameId: number },
+    @MessageBody() data: LeaveGameRequestDto,
     @ConnectedSocket() client: Socket
   ) {
     try {

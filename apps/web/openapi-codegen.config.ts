@@ -15,6 +15,7 @@ export default defineConfig({
       const filenamePrefix = 'api'
       const { schemasFiles } = await generateSchemaTypes(context, {
         filenamePrefix,
+        useEnums: true,
       })
       await generateReactQueryComponents(context, {
         filenamePrefix,

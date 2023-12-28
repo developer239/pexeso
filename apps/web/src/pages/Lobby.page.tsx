@@ -2,30 +2,25 @@ import { Button, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import { useUsersControllerMe } from 'src/api/apiComponents'
-import {
-  useReactQuerySocketSubscription,
-  IGame,
-} from 'src/hooks/useReactQuerySocketSubscription'
+import { Game, CreateGameRequestDto } from 'src/api/apiSchemas'
+import { useSocketMutation } from 'src/hooks/useSocketMutation'
+import { useSocketQuery } from 'src/hooks/useSocketQuery'
 
+// TODO: sometimes games are not loaded on init for some reason
 export const LobbyPage: React.FC = () => {
   const me = useUsersControllerMe({})
-  const socketUrl = 'http://localhost:8080/games'
+  useSocketQuery(me.data?.id)
 
-  // Use the custom hook for Socket.IO subscription
-  useReactQuerySocketSubscription(socketUrl, me.data?.id)
-
-  const { data: games } = useQuery<IGame[]>({
+  const { data: games } = useQuery<Game[]>({
     queryKey: ['games', 'list'],
-    queryFn: () =>
-      // Placeholder function, replace with your actual data fetching logic
-      new Promise<IGame[]>((resolve) => {
-        // Fetching logic here
-      }),
   })
 
+  const createGame = useSocketMutation<CreateGameRequestDto>('createGame')
+
   const handleCreateGame = () => {
-    // This will trigger the 'createGame' event listener in the custom hook
-    // Nothing needs to be done here if the socket event is emitted from the hook
+    if (me.data?.id) {
+      createGame({ hostId: me.data.id })
+    }
   }
 
   if (me.isLoading) {
@@ -39,8 +34,7 @@ export const LobbyPage: React.FC = () => {
       <div>
         {games?.map((game) => (
           <div key={game.id}>
-            {game.name} - Id: {game.id}
-            {game.name} - Host: {game.host.id}
+            Id: {game.id} | Host: {game.host.id}
           </div>
         ))}
       </div>

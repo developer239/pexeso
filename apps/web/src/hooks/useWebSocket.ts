@@ -1,18 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-export const useWebSocket = (url: string) => {
-  const [socket, setSocket] = useState<Socket | null>(null)
+const url = 'http://localhost:8080/games'
+
+export const useWebSocket = () => {
+  const socketRef = useRef<Socket | null>(null)
 
   useEffect(() => {
-    const socketIo = io(url)
-
-    setSocket(socketIo)
-
-    return () => {
-      socketIo.disconnect()
+    // Initialize socket connection only if it doesn't exist
+    if (!socketRef.current) {
+      socketRef.current = io(url)
     }
-  }, [url])
 
-  return socket
+    // Return the cleanup function
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect()
+        socketRef.current = null
+      }
+    }
+  }, [])
+
+  return socketRef.current
 }

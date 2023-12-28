@@ -3,6 +3,17 @@
  *
  * @version 1.0
  */
+export enum WebSocketEventEvent {
+  requestAllGames = 'requestAllGames',
+  createGame = 'createGame',
+  joinGame = 'joinGame',
+  leaveGame = 'leaveGame',
+  gameCreated = 'gameCreated',
+  gameUpdated = 'gameUpdated',
+  allGames = 'allGames',
+  exception = 'exception',
+}
+
 export type MeDTO = {
   /**
    * Unique user ID.
@@ -17,7 +28,7 @@ export type UsernameLoginRequestDTO = {
   username: string
 }
 
-export type UserDTO = {
+export type User = {
   /**
    * Unique user ID.
    *
@@ -30,9 +41,60 @@ export type UserDTO = {
 export type UsernameLoginResponseDTO = {
   accessToken: string
   refreshToken: string
-  user: UserDTO
+  user: User
 }
 
 export type RefreshTokenResponseDTO = {
   accessToken: string
+}
+
+export type CreateGameRequestDto = {
+  hostId: number
+}
+
+export type GridSize = {
+  width: number
+  height: number
+}
+
+export type GamePlayer = {
+  id: number
+  user: User
+}
+
+export type Game = {
+  id: number
+  host: User
+  gridSize: GridSize
+  maxPlayers: number
+  timeLimitSeconds: number
+  cardVisibleTimeSeconds: number
+  startedAt: Record<string, any>
+  players: GamePlayer[]
+  /**
+   * @format date-time
+   */
+  createdAt: string
+  /**
+   * @format date-time
+   */
+  updatedAt: string
+}
+
+export type JoinGameRequestDto = {
+  userId: number
+  gameId: number
+}
+
+export type LeaveGameRequestDto = {
+  userId: number
+  gameId: number
+}
+
+export type ExceptionResponseDto = {
+  message: string
+}
+
+export type WebSocketEvent = {
+  event: WebSocketEventEvent
 }
