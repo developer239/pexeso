@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css'
-import { AppShell, Center, Container, MantineProvider } from '@mantine/core'
+import { AppShell, Container, MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
 import { Header } from 'src/components/Header'
@@ -14,7 +14,7 @@ export const App = () => (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <WebSocketProvider>
-        <MantineProvider theme={theme}>
+        <MantineProvider theme={theme} defaultColorScheme="dark">
           <AppShell header={{ height: 60 }} padding="md">
             <AppShell.Header>
               <Header />

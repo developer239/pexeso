@@ -1,21 +1,16 @@
 import { Button, Group, Switch, useMantineColorScheme } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React from 'react'
 import { useSessionControllerLogout } from 'src/api/apiComponents'
 import classes from 'src/components/Header/Header.module.css'
 import { useMe } from 'src/hooks/useMe'
 import { logout } from 'src/services/authService'
 
 export const Header = () => {
-  const { setColorScheme } = useMantineColorScheme()
-  const [isDark, { toggle }] = useDisclosure(true)
+  const { setColorScheme, colorScheme } = useMantineColorScheme()
+  const [isDark, { toggle }] = useDisclosure(colorScheme === 'dark')
   const logoutMutation = useSessionControllerLogout()
   const me = useMe()
-
-  useEffect(() => {
-    setColorScheme('dark')
-  }, [])
 
   const handleToggleDarkMode = () => {
     setColorScheme(isDark ? 'light' : 'dark')
@@ -40,7 +35,7 @@ export const Header = () => {
           />
           {me.data && (
             <Button size="xs" onClick={handleLogout}>
-              Logout
+              {me.data.username} Logout
             </Button>
           )}
         </Group>
