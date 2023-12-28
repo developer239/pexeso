@@ -20,7 +20,7 @@ export const App = () => (
               <Header />
             </AppShell.Header>
             <AppShell.Main bg="var(--mantine-color-gray-light)">
-              <Container maw="1200" size="80%" style={{ paddingTop: '120px' }}>
+              <Container maw="1200" size="80%">
                 <Router />
               </Container>
             </AppShell.Main>
