@@ -13,6 +13,7 @@ import {
   databaseConfig,
   databaseConfigSchema,
 } from 'src/config/database.config'
+import { gameConfig, gameConfigSchema } from 'src/config/game.config'
 import { AuthModule } from 'src/modules/auth/auth.module'
 import { DatabaseModule } from 'src/modules/database/database.module'
 import { GameModule } from 'src/modules/game/game.module'
@@ -31,11 +32,12 @@ import { validationOptions } from 'src/utils/validation-options'
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      load: [appConfig, databaseConfig, authConfig],
+      load: [appConfig, databaseConfig, authConfig, gameConfig],
       validationSchema: Joi.object({
         ...appConfigSchema,
         ...databaseConfigSchema,
         ...authConfigSchema,
+        ...gameConfigSchema,
       }),
     }),
     DatabaseModule,

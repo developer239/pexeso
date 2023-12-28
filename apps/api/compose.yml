@@ -1,4 +1,4 @@
-name: backend-nest-template-api
+name: pexeso-api
 
 services:
   database:

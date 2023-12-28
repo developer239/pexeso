@@ -1,6 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { IsNull, Repository } from 'typeorm'
+import { gameConfig, GameConfigType } from 'src/config/game.config'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
@@ -8,12 +9,15 @@ import { Game } from 'src/modules/game/entities/game.entity'
 @Injectable()
 export class GameService {
   constructor(
+    // TODO: create separate service for each repository
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(GamePlayer)
-    private readonly gamePlayerRepository: Repository<GamePlayer>
+    private readonly gamePlayerRepository: Repository<GamePlayer>,
+    @Inject(gameConfig.KEY)
+    private readonly gameConfigValues: GameConfigType
   ) {}
 
   async findGame(id: number) {
@@ -35,7 +39,6 @@ export class GameService {
     return game
   }
 
-  // TODO: set default setting from default-config table
   async createGame(hostId: number): Promise<Game> {
     const host = await this.userRepository.findOne({ where: { id: hostId } })
     if (!host) {
@@ -51,12 +54,12 @@ export class GameService {
     const game = new Game()
     game.host = host
     game.gridSize = {
-      width: 10,
-      height: 10,
+      width: this.gameConfigValues.gridSizeW,
+      height: this.gameConfigValues.gridSizeH,
     }
-    game.maxPlayers = 10
-    game.timeLimitSeconds = 600
-    game.cardVisibleTimeSeconds = 15
+    game.maxPlayers = this.gameConfigValues.maxPlayers
+    game.timeLimitSeconds = this.gameConfigValues.gameTimeLimitS
+    game.cardVisibleTimeSeconds = this.gameConfigValues.cardVisibleTimeS
     await this.gameRepository.save(game)
 
     const gamePlayer = new GamePlayer()

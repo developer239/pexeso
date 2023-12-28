@@ -12,7 +12,6 @@ import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { AuthService } from 'src/modules/auth/auth.service'
 import { MeDTO } from 'src/modules/auth/dto/me.dto'
-import { RefreshTokenResponseDTO } from 'src/modules/auth/dto/refresh-token.dto'
 import {
   UsernameLoginRequestDTO,
   UsernameLoginResponseDTO,
@@ -20,7 +19,6 @@ import {
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsernameAuthGuard } from 'src/modules/auth/guards/username.guard'
 import { GetUserPayload } from 'src/modules/auth/strategies/user.decorator'
-import { IpAddress } from 'src/utils/decorators/ip-address.decorator'
 
 @ApiTags('Session')
 @Controller({
@@ -41,10 +39,9 @@ export class SessionController {
   })
   public login(
     @Body() login: UsernameLoginRequestDTO,
-    @GetUserPayload() user: User,
-    @IpAddress() ipAddress
+    @GetUserPayload() user: User
   ) {
-    return this.service.login(user, ipAddress)
+    return this.service.login(user)
   }
 
   @ApiBearerAuth()
@@ -55,15 +52,6 @@ export class SessionController {
   })
   public logout(@GetUserPayload() user: User) {
     return this.service.logout(user)
-  }
-
-  @UseGuards(AuthGuard('jwt-refresh-token'))
-  @Post('refresh')
-  @ApiOkResponse({
-    type: RefreshTokenResponseDTO,
-  })
-  public refreshToken(@GetUserPayload() user: User): { accessToken: string } {
-    return this.service.refreshAccessToken(user)
   }
 
   @ApiBearerAuth()

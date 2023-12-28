@@ -38,6 +38,9 @@ export class Game {
   @Column({ type: 'timestamp', nullable: true })
   startedAt: Date | null
 
+  @Column({ type: 'timestamp', nullable: true })
+  finishedAt: Date | null
+
   @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.game)
   players: Relation<GamePlayer>[]
 

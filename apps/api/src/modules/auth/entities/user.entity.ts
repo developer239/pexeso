@@ -10,7 +10,6 @@ import {
   BeforeInsert,
   Relation,
 } from 'typeorm'
-import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { EntityHelper } from 'src/utils/entity-helper'
@@ -23,7 +22,6 @@ export class User extends EntityHelper {
   @Column({ unique: true, nullable: false, length: 50 })
   username: string
 
-  // TODO: rename to lastActiveAt
   @Exclude({ toPlainOnly: true })
   @Column({ type: 'timestamp', nullable: false })
   lastActiveAt: Date
@@ -33,9 +31,6 @@ export class User extends EntityHelper {
 
   @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.user)
   gamePlayers: Relation<GamePlayer>[]
-
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
-  refreshTokens: Relation<RefreshToken>[]
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({ type: 'timestamp' })

@@ -1,18 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { RefreshTokenRepository } from 'src/modules/auth/entities/refresh-token-repository'
+import { authConfig, AuthConfigType } from 'src/config/auth.config'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
-
-// TODO: move to env
-const LAST_ACTIVE_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersRepository: UsersRepository,
-    private readonly refreshTokenRepository: RefreshTokenRepository
+    @Inject(authConfig.KEY)
+    private readonly authConfigValues: AuthConfigType
   ) {}
 
   async logout(user: User) {
@@ -31,7 +29,7 @@ export class AuthService {
     }
 
     userRecord.lastActiveAt = new Date(
-      new Date().getTime() - LAST_ACTIVE_THRESHOLD
+      new Date().getTime() - this.authConfigValues.lastActiveThresholdMs
     )
 
     await this.usersRepository.save(userRecord)
@@ -72,45 +70,23 @@ export class AuthService {
     return user
   }
 
-  async login(user: User, ipAddress: string) {
+  async login(user: User) {
     const token = this.jwtService.sign({
       id: user.id,
     })
-    const refreshToken = this.jwtService.sign(
-      {
-        id: user.id,
-      },
-      {
-        expiresIn: '7d',
-      }
-    )
-    await this.refreshTokenRepository.addRefreshToken(
-      user.id,
-      refreshToken,
-      ipAddress
-    )
 
     await this.usersRepository.updateLastActiveAt(user.id)
 
     return {
       accessToken: token,
-      refreshToken,
       user,
     }
-  }
-
-  refreshAccessToken(user: User) {
-    const accessToken = this.jwtService.sign({
-      id: user.id,
-    })
-
-    return { accessToken }
   }
 
   isRecentlyActive(user: User) {
     const now = new Date().getTime()
     const lastActive = user.lastActiveAt.getTime()
 
-    return now - lastActive < LAST_ACTIVE_THRESHOLD
+    return now - lastActive < this.authConfigValues.lastActiveThresholdMs
   }
 }

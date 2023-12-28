@@ -15,6 +15,7 @@ import {
   databaseConfig,
   databaseConfigSchema,
 } from 'src/config/database.config'
+import { gameConfig, gameConfigSchema } from 'src/config/game.config'
 import { AuthModule } from 'src/modules/auth/auth.module'
 import { DatabaseModule } from 'src/modules/database/database.module'
 import { TestingModule } from 'src/modules/testing/testing.module'
@@ -26,12 +27,13 @@ export const bootstrap = async (metadata: ModuleMetadata) => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [databaseConfig, authConfig, appConfig],
+          load: [databaseConfig, authConfig, appConfig, gameConfig],
           envFilePath: ['.env.test', '.env'],
           validationSchema: Joi.object({
             ...appConfigSchema,
             ...authConfigSchema,
             ...databaseConfigSchema,
+            ...gameConfigSchema,
           }),
         }),
         DatabaseModule,

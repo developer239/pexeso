@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt'
 import request from 'supertest'
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest'
 import { AuthModule } from 'src/modules/auth/auth.module'
-import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity'
 import { UserTestingService } from 'src/modules/auth/entities/user-testing.service'
 import { TestingDatabaseService } from 'src/modules/testing/testing-database.service'
 import { bootstrap } from 'src/modules/testing/utilities'
@@ -64,7 +63,6 @@ describe('[session] controller', () => {
       expect(response.status).toBe(200)
       expect(response.body).toStrictEqual({
         accessToken: expect.any(String),
-        refreshToken: expect.any(String),
         user: {
           id: user.id,
           username: user.username,
@@ -89,43 +87,11 @@ describe('[session] controller', () => {
         expect(response.status).toBe(200)
         expect(response.body).toStrictEqual({
           accessToken: expect.any(String),
-          refreshToken: expect.any(String),
           user: {
             id: expect.any(Number),
             username: user.username,
           },
         })
-      })
-    })
-  })
-
-  describe('POST /refresh', () => {
-    it('should return access token', async () => {
-      // Arrange
-      const { user, accessToken: token } =
-        await testingEntityService.createAuthenticatedUser(jwtService)
-      const refreshToken = await testingEntityService.saveFixture(
-        RefreshToken,
-        {
-          value: token,
-          user: {
-            id: user.id,
-          },
-        }
-      )
-
-      // Act
-      const server = app.getHttpServer()
-      const response = await request(server)
-        .post('/api/v1/session/refresh')
-        .send({
-          refreshToken: refreshToken.value,
-        })
-
-      // Assert
-      expect(response.status).toBe(201)
-      expect(response.body).toMatchObject({
-        accessToken: expect.any(String),
       })
     })
   })
