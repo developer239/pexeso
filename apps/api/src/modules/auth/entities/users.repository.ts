@@ -23,7 +23,7 @@ export class UsersRepository {
 
   updateLastActiveAt(userId: number) {
     return this.usersRepository.update(userId, {
-      lastActive: new Date(),
+      lastActiveAt: new Date(),
     })
   }
 }

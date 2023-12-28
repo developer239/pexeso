@@ -15,7 +15,7 @@ erDiagram
         int max_players
         int time_limit_seconds
         int card_visible_time_seconds
-        boolean has_started
+        datetime started_at
         datetime created_at
     }
 

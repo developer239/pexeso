@@ -23,9 +23,11 @@
     "@nestjs/jwt": "10.2.0",
     "@nestjs/passport": "10.0.3",
     "@nestjs/platform-express": "10.3.0",
+    "@nestjs/platform-socket.io": "^10.3.0",
     "@nestjs/swagger": "7.1.17",
     "@nestjs/throttler": "5.1.1",
     "@nestjs/typeorm": "10.0.1",
+    "@nestjs/websockets": "^10.3.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.0",
     "joi": "17.11.0",
@@ -36,8 +38,10 @@
     "reflect-metadata": "0.2.1",
     "request-ip": "3.3.0",
     "rxjs": "7.8.1",
+    "socket.io": "^4.7.2",
     "swagger-ui-express": "5.0.0",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@linters/eslint-config-node": "1.13.0",
@@ -53,6 +57,7 @@
     "@types/node": "20.10.5",
     "@types/pg-connection-string": "2.0.0",
     "@types/request-ip": "0.0.41",
+    "@types/socket.io": "^3.0.2",
     "@types/supertest": "6.0.1",
     "@vitest/coverage-v8": "0.34.6",
     "env-cmd": "10.1.0",

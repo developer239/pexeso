@@ -85,7 +85,7 @@ export class AuthService {
   isRecentlyActive(user: User) {
     const RECENTLY_ACTIVE_THRESHOLD = 5 * 60 * 1000 // 5 minutes in milliseconds
     const now = new Date().getTime()
-    const lastActive = user.lastActive.getTime()
+    const lastActive = user.lastActiveAt.getTime()
 
     return now - lastActive < RECENTLY_ACTIVE_THRESHOLD
   }

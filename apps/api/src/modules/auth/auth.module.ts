@@ -11,10 +11,12 @@ import { RefreshTokenRepository } from 'src/modules/auth/entities/refresh-token-
 import { RefreshToken } from 'src/modules/auth/entities/refresh-token.entity'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
+import { UsernameAuthGuard } from 'src/modules/auth/guards/username.guard'
 import { JwtRefreshTokenStrategy } from 'src/modules/auth/strategies/jwt-refresh.strategy'
 import { JwtStrategy } from 'src/modules/auth/strategies/jwt.strategy'
+import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
+import { Game } from 'src/modules/game/entities/game.entity'
 import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
-import { UsernameAuthGuard } from './guards/username.guard'
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { UsernameAuthGuard } from './guards/username.guard'
         },
       }),
     }),
-    TypeOrmModule.forFeature([User, RefreshToken]),
+    TypeOrmModule.forFeature([User, RefreshToken, Game, GamePlayer]),
   ],
   controllers: [UsersController, SessionController],
   providers: [

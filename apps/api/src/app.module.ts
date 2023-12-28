@@ -15,6 +15,7 @@ import {
 } from 'src/config/database.config'
 import { AuthModule } from 'src/modules/auth/auth.module'
 import { DatabaseModule } from 'src/modules/database/database.module'
+import { GameModule } from 'src/modules/game/game.module'
 import { HomeModule } from 'src/modules/home/home.module'
 import { HttpExceptionFilter } from 'src/utils/filters/http-exception.filter'
 import { validationOptions } from 'src/utils/validation-options'
@@ -40,6 +41,7 @@ import { validationOptions } from 'src/utils/validation-options'
     DatabaseModule,
     AuthModule,
     HomeModule,
+    GameModule,
   ],
   providers: [
     {

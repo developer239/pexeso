@@ -18,7 +18,7 @@ export class UserTestingService extends TestingEntityService {
 
     const user = await this.saveFixture(User, {
       username,
-      lastActive: new Date(Date.now() - 20 * 60 * 1000),
+      lastActiveAt: new Date(Date.now() - 20 * 60 * 1000),
     })
 
     return {

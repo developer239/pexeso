@@ -16,9 +16,9 @@ import {
   UsernameLoginResponseDTO,
 } from 'src/modules/auth/dto/username-login.dto'
 import { User } from 'src/modules/auth/entities/user.entity'
+import { UsernameAuthGuard } from 'src/modules/auth/guards/username.guard'
 import { GetUserPayload } from 'src/modules/auth/strategies/user.decorator'
 import { IpAddress } from 'src/utils/decorators/ip-address.decorator'
-import { UsernameAuthGuard } from '../guards/username.guard'
 
 @ApiTags('Session')
 @Controller({

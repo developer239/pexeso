@@ -24,7 +24,7 @@ export class RefreshToken extends EntityHelper {
   })
   ipAddress: string
 
-  @CreateDateColumn({ type: 'timestamptz' }) createdAt: Date
+  @CreateDateColumn({ type: 'timestamp' }) createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz' }) updatedAt: Date
+  @UpdateDateColumn({ type: 'timestamp' }) updatedAt: Date
 }
