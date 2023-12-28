@@ -10,7 +10,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute component={LobbyPage} />,
   },
   {
-    path: '/game',
+    path: '/game/:gameId',
     element: <ProtectedRoute component={GamePage} />,
   },
   {

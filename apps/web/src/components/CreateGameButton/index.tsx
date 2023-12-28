@@ -1,5 +1,6 @@
 import { Button } from '@mantine/core'
 import React, { FC } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   CreateGameRequestDto,
   User,
@@ -12,8 +13,10 @@ export interface IProps {
 }
 
 export const CreateGameButton: FC<IProps> = (props) => {
+  const navigate = useNavigate()
   const createGame = useSocketMutation<CreateGameRequestDto>(
-    WebSocketEventEvent.createGame
+    WebSocketEventEvent.createGame,
+    WebSocketEventEvent.gameCreated
   )
 
   const handleCreateGame = () => {
@@ -21,7 +24,9 @@ export const CreateGameButton: FC<IProps> = (props) => {
       me: { id },
     } = props
 
-    createGame({ hostId: id })
+    createGame({ hostId: id }, (createdGame) => {
+      navigate(`/game/${createdGame.id}`)
+    })
   }
 
   return (

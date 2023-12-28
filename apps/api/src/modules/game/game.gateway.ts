@@ -82,11 +82,16 @@ export class GameGateway implements OnGatewayInit {
     try {
       await this.gameService.leaveGame(data.userId, data.gameId)
       const game = await this.gameService.findGame(data.gameId)
-      const roomId = this.getGameRoomId(game.id)
 
-      await client.leave(roomId)
+      if (game) {
+        const roomId = this.getGameRoomId(game.id)
+        await client.leave(roomId)
 
-      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
+        this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
+      } else {
+        const allGames = await this.gameService.getAllGames()
+        this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
+      }
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }

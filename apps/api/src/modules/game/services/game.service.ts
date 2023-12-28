@@ -26,16 +26,6 @@ export class GameService {
       relations: ['host', 'players'],
     })
 
-    if (!game) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: 'Game not found',
-        },
-        HttpStatus.NOT_FOUND
-      )
-    }
-
     return game
   }
 
@@ -135,5 +125,13 @@ export class GameService {
     }
 
     await this.gamePlayerRepository.remove(gamePlayer)
+
+    const currentGamePlayerCount = await this.gamePlayerRepository.count({
+      where: { game: { id: gameId } },
+    })
+
+    if (currentGamePlayerCount === 0) {
+      await this.gameRepository.delete({ id: gameId })
+    }
   }
 }
