@@ -9,7 +9,12 @@ import {
 import { Server, Socket } from 'socket.io'
 import { GameService } from 'src/modules/game/services/game.service'
 
-@WebSocketGateway({ namespace: '/games' })
+@WebSocketGateway({
+  namespace: '/games',
+  cors: {
+    origin: true,
+  },
+})
 export class GameGateway implements OnGatewayInit {
   @WebSocketServer() server: Server
 
@@ -17,6 +22,16 @@ export class GameGateway implements OnGatewayInit {
 
   afterInit(/* server: Server */) {
     // Additional initialization logic if needed
+  }
+
+  @SubscribeMessage('requestAllGames')
+  async handleRequestAllGames(@ConnectedSocket() client: Socket) {
+    try {
+      const games = await this.gameService.getAllGames()
+      client.emit('allGames', games)
+    } catch (error) {
+      client.emit('exception', { message: error.message })
+    }
   }
 
   @SubscribeMessage('createGame')

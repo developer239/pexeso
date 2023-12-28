@@ -36,7 +36,7 @@ export class Game {
   cardVisibleTimeSeconds: number
 
   @Column({ type: 'timestamp', nullable: true })
-  startedAt: Date
+  startedAt: Date | null
 
   @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.game)
   players: Relation<GamePlayer>[]

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, LessThan } from 'typeorm'
+import { IsNull, Repository } from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
@@ -43,6 +43,8 @@ export class GameService {
       height: 10,
     }
     game.maxPlayers = 10
+    game.timeLimitSeconds = 600
+    game.cardVisibleTimeSeconds = 15
     await this.gameRepository.save(game)
 
     const gamePlayer = new GamePlayer()
@@ -54,12 +56,10 @@ export class GameService {
   }
 
   getAllGames(): Promise<Game[]> {
-    const nowUtc = new Date()
-
     return this.gameRepository.find({
       relations: ['host', 'players'],
       where: {
-        startedAt: LessThan(nowUtc),
+        startedAt: IsNull(),
       },
     })
   }

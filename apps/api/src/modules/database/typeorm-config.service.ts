@@ -20,6 +20,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       type: 'postgres',
       url: this.databaseConfigValues.databaseUrl,
       autoLoadEntities: true,
+      logging: 'all',
       migrations: isVitest ? [] : [`${__dirname}/migrations/**/*{.ts,.js}`],
       cli: {
         entitiesDir: 'src',
