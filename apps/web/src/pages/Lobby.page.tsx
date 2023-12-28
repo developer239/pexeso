@@ -2,7 +2,11 @@ import { Button, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import { useUsersControllerMe } from 'src/api/apiComponents'
-import { Game, CreateGameRequestDto } from 'src/api/apiSchemas'
+import {
+  Game,
+  CreateGameRequestDto,
+  WebSocketEventEvent,
+} from 'src/api/apiSchemas'
 import { useSocketMutation } from 'src/hooks/useSocketMutation'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
 
@@ -14,7 +18,9 @@ export const LobbyPage: React.FC = () => {
     queryKey: ['games', 'list'],
   })
 
-  const createGame = useSocketMutation<CreateGameRequestDto>('createGame')
+  const createGame = useSocketMutation<CreateGameRequestDto>(
+    WebSocketEventEvent.createGame
+  )
 
   const handleCreateGame = () => {
     if (me.data?.id) {
