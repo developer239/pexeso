@@ -1,34 +1,32 @@
-// src/pages/LobbyPage.tsx
 import { Button, Title } from '@mantine/core'
-import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import React from 'react'
 import { useUsersControllerMe } from 'src/api/apiComponents'
-import { useWebSocket } from 'src/hooks/useWebSocket'
+import {
+  useReactQuerySocketSubscription,
+  IGame,
+} from 'src/hooks/useReactQuerySocketSubscription'
 
-export const LobbyPage = () => {
+export const LobbyPage: React.FC = () => {
   const me = useUsersControllerMe({})
-  const [games, setGames] = useState<any[]>([])
-  const socket = useWebSocket('http://localhost:8080/games')
+  const socketUrl = 'http://localhost:8080/games'
+
+  // Use the custom hook for Socket.IO subscription
+  useReactQuerySocketSubscription(socketUrl, me.data?.id)
+
+  const { data: games } = useQuery<IGame[]>({
+    queryKey: ['games', 'list'],
+    queryFn: () =>
+      // Placeholder function, replace with your actual data fetching logic
+      new Promise<IGame[]>((resolve) => {
+        // Fetching logic here
+      }),
+  })
 
   const handleCreateGame = () => {
-    socket?.emit('createGame', me.data?.id)
+    // This will trigger the 'createGame' event listener in the custom hook
+    // Nothing needs to be done here if the socket event is emitted from the hook
   }
-
-  useEffect(() => {
-    socket?.on('gameCreated', (newGame) => {
-      setGames((prevGames) => [...prevGames, newGame])
-    })
-
-    socket?.on('allGames', (existingGames) => {
-      setGames(existingGames)
-    })
-
-    socket?.emit('requestAllGames')
-
-    return () => {
-      socket?.off('gameCreated')
-      socket?.off('allGames')
-    }
-  }, [socket])
 
   if (me.isLoading) {
     return <Title>Loading...</Title>
@@ -39,7 +37,7 @@ export const LobbyPage = () => {
       <Title>Welcome, {me.data?.username}</Title>
       <Button onClick={handleCreateGame}>Create New Game</Button>
       <div>
-        {games.map((game) => (
+        {games?.map((game) => (
           <div key={game.id}>
             {game.name} - Id: {game.id}
             {game.name} - Host: {game.host.id}
