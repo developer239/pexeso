@@ -82,11 +82,17 @@ export class GameService {
       return game
     }
 
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    if (game.startedAt) {
+      throw new Error('Game is started')
+    }
+
     if (game.players.length === game.maxPlayers) {
       throw new Error('Game is full')
     }
-
-    // TODO: only if the game has not started yet
 
     await this.gamePlayerRepository.save({ game, user })
 
@@ -101,6 +107,10 @@ export class GameService {
 
     if (!game) {
       throw new Error('Game not found')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
     }
 
     const gamePlayer = game.players.find((player) => player.user.id === userId)
