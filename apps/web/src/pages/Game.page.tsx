@@ -51,7 +51,7 @@ export const GamePage: FC<IProps> = ({ me }) => {
           <GameBoard rowsCount={4} columnsCount={4} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 3 }} order={{ base: 1, md: 2 }}>
-          <GameOptionsWidget me={me} />
+          <GameOptionsWidget game={game} me={me} />
           <Space h="lg" />
           <GamePlayersWidget
             users={game.players.map((player) => player.user)}
