@@ -24,6 +24,7 @@ export const AvailableGamesTable: FC<IProps> = ({ me }) => {
         gameId={game.id}
         me={me}
         isMine={game.host.id === me.id}
+        game={game}
       />,
     ]),
   }

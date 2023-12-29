@@ -10,9 +10,6 @@ export class GridSize {
 }
 
 export class GamePlayer {
-  @ApiProperty()
-  id: number
-
   @ApiProperty({ type: () => User })
   user: User
 }

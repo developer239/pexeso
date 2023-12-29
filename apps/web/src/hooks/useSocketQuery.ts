@@ -1,6 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { Game, WebSocketEventEvent } from 'src/api/apiSchemas'
+import {
+  ExceptionResponseDto,
+  Game,
+  WebSocketEventEvent,
+} from 'src/api/apiSchemas'
 import { useWebSocket } from 'src/contexts/WebSocketContext'
 
 export const useSocketQuery = (userId: number | undefined) => {
@@ -32,12 +36,16 @@ export const useSocketQuery = (userId: number | undefined) => {
       queryClient.setQueryData(['games', game.id], game)
     })
 
-    // TODO: remove this?
-    if (userId !== undefined) {
-      socket.on(WebSocketEventEvent.createGame, () => {
-        socket.emit(WebSocketEventEvent.createGame, userId)
-      })
-    }
+    socket.on(WebSocketEventEvent.createGame, () => {
+      socket.emit(WebSocketEventEvent.createGame, userId)
+    })
+
+    socket.on(
+      WebSocketEventEvent.exception,
+      (exception: ExceptionResponseDto) => {
+        // TODO: handle error
+      }
+    )
 
     return () => {
       socket.off(WebSocketEventEvent.allGames)

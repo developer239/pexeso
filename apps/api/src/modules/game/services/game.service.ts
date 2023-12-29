@@ -62,39 +62,35 @@ export class GameService {
   }
 
   getAllGames(): Promise<Game[]> {
-    return this.gameRepository.find({
-      relations: ['host', 'players'],
-      where: {
-        startedAt: IsNull(),
-      },
-    })
+    return (
+      this.gameRepository
+        .createQueryBuilder('game')
+        .leftJoinAndSelect('game.players', 'players')
+        .leftJoinAndSelect('players.user', 'user')
+        .leftJoinAndSelect('game.host', 'host')
+        .where('game.startedAt IS NULL')
+        // .andWhere("game.maxPlayers > (SELECT COUNT(*) FROM game_player WHERE game_player.\"gameId\" = game.id)")
+        .getMany()
+    )
   }
 
   async joinGame(userId: number, gameId: number): Promise<Game> {
     const user = await this.userRepository.findOne({ where: { id: userId } })
-    const game = await this.gameRepository.findOne({
-      where: { id: gameId },
-      relations: ['players'],
-    })
+    const game = await this.findGame(gameId)
 
     if (!user || !game) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: 'User or Game not found',
-        },
-        HttpStatus.NOT_FOUND
-      )
+      throw new Error('User or Game not found')
     }
 
-    if (game.players.length > game.maxPlayers) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: 'Game is full',
-        },
-        HttpStatus.BAD_REQUEST
-      )
+    const isPlayerInGame = game.players.find(
+      (player) => player.user.id === userId
+    )
+    if (isPlayerInGame) {
+      return game
+    }
+
+    if (game.players.length === game.maxPlayers) {
+      throw new Error('Game is full')
     }
 
     await this.gamePlayerRepository.save({ game, user })

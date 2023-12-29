@@ -89,6 +89,7 @@ export class GameGateway implements OnGatewayInit {
         await client.leave(roomId)
 
         this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
+        this.server.emit(WebSocketEvents.ResponseAllGames, [game])
       } else {
         const allGames = await this.gameService.getAllGames()
         this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
