@@ -86,6 +86,8 @@ export class GameService {
       throw new Error('Game is full')
     }
 
+    // TODO: only if the game has not started yet
+
     await this.gamePlayerRepository.save({ game, user })
 
     return (await this.findGame(game.id))!
