@@ -4,6 +4,9 @@ module.exports = {
     '@linters/eslint-config-typescript',
     'prettier',
   ],
+  rules: {
+    'react/require-default-props': 0,
+  },
   overrides: [
     {
       files: ['*.story.tsx'],

@@ -1,15 +1,24 @@
 import { Modal } from '@mantine/core'
-import React from 'react'
+import React, { FC } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Game } from 'src/api/apiSchemas'
 
-export const GameFinishedModal = () => (
-  <Modal
-    opened={false}
-    onClose={() => {
-      // navigate to /lobby
-      window.location.href = '/lobby'
-    }}
-    centered
-  >
-    Player XY won!
-  </Modal>
-)
+export interface IProps {
+  readonly game: Game
+}
+
+export const GameFinishedModal: FC<IProps> = ({ game }) => {
+  const navigate = useNavigate()
+
+  return (
+    <Modal
+      opened={Boolean(game.finishedAt)}
+      onClose={() => {
+        navigate('/lobby')
+      }}
+      centered
+    >
+      Game finished: TODO show game information
+    </Modal>
+  )
+}

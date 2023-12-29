@@ -7,6 +7,7 @@ import {
   User,
   WebSocketEventEvent,
 } from 'src/api/apiSchemas'
+import { ElapsedTime } from 'src/components/ElapsedTime'
 import { useSocketMutation } from 'src/hooks/useSocketMutation'
 
 export interface IProps {
@@ -22,7 +23,7 @@ export const JoinGameButton: FC<IProps> = ({ gameId, me, isMine, game }) => {
     WebSocketEventEvent.joinGame
   )
 
-  const handleCreateGame = () => {
+  const handleJoinGame = () => {
     joinGame({ gameId, userId: me.id })
 
     setTimeout(() => {
@@ -30,19 +31,35 @@ export const JoinGameButton: FC<IProps> = ({ gameId, me, isMine, game }) => {
     }, 100)
   }
 
-  const isFull = game.players?.length === game.maxPlayers
   const isMeJoined = game.players?.some((player) => player.user.id === me.id)
+  if (isMeJoined) {
+    return (
+      <Button variant="light" size="xs" w={150} onClick={handleJoinGame}>
+        Open
+      </Button>
+    )
+  }
+
+  if (game.startedAt) {
+    return (
+      <Button disabled variant="light" size="xs" w={150}>
+        Started: <ElapsedTime startedAt={game.startedAt!} showText />
+      </Button>
+    )
+  }
+
+  const isFull = game.players?.length === game.maxPlayers
   if (isFull && !isMeJoined) {
     return (
-      <Button disabled variant="light" size="xs">
+      <Button disabled variant="light" size="xs" w={150}>
         full
       </Button>
     )
   }
 
   return (
-    <Button variant="light" size="xs" onClick={handleCreateGame}>
-      {isMine || isMeJoined ? 'open' : 'join'}
+    <Button variant="light" size="xs" onClick={handleJoinGame} w={150}>
+      join
     </Button>
   )
 }

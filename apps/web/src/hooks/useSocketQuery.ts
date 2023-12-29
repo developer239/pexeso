@@ -52,6 +52,7 @@ export const useSocketQuery = (userId: number | undefined) => {
       socket.off(WebSocketEventEvent.gameCreated)
       socket.off(WebSocketEventEvent.gameUpdated)
       socket.off(WebSocketEventEvent.joinGame)
+      socket.off(WebSocketEventEvent.createGame)
     }
   }, [socket, userId, queryClient])
 }

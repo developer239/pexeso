@@ -35,6 +35,9 @@ export class Game {
   timeLimitSeconds: number
 
   @Column()
+  turnLimitSeconds: number
+
+  @Column()
   cardVisibleTimeSeconds: number
 
   @Column({ type: 'timestamp', nullable: true })

@@ -1,4 +1,11 @@
-import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Relation } from 'typeorm'
+import {
+  Entity,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn,
+  Relation,
+  Column,
+} from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
@@ -17,4 +24,13 @@ export class GamePlayer {
   @ManyToOne(() => User, (user) => user.gamePlayers)
   @JoinColumn({ name: 'userId' })
   user: Relation<User>
+
+  @Column({ default: false })
+  isOnTurn: boolean
+
+  @Column({ default: 0 })
+  turnCount: number
+
+  @Column({ default: 0 })
+  score: number
 }

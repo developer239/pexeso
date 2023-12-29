@@ -13,21 +13,34 @@ export const AvailableGamesTable: FC<IProps> = ({ me }) => {
     queryKey: ['games', 'list'],
   })
 
-  const tableData: TableData = {
-    head: ['Game ID', 'Host Name', 'Players', ''],
-    body: games?.map((game) => [
-      game.id,
-      game.host.username,
-      `${game.players?.length || 0}/${game.maxPlayers}`,
-      <JoinGameButton
-        key={game.id}
-        gameId={game.id}
-        me={me}
-        isMine={game.host.id === me.id}
-        game={game}
-      />,
-    ]),
-  }
+  const rows = games?.map((game) => (
+    <Table.Tr key={game.id}>
+      <Table.Td>{game.host.username}</Table.Td>
+      <Table.Td>
+        {game.players?.length || 0}/{game.maxPlayers}
+      </Table.Td>
+      <Table.Td>
+        <JoinGameButton
+          key={game.id}
+          gameId={game.id}
+          me={me}
+          isMine={game.host.id === me.id}
+          game={game}
+        />
+      </Table.Td>
+    </Table.Tr>
+  ))
 
-  return <Table data={tableData} />
+  return (
+    <Table>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th style={{ width: '35%' }}>Host Name</Table.Th>
+          <Table.Th style={{ width: '35%' }}>Players</Table.Th>
+          <Table.Th style={{ width: '30%' }} />
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>{rows}</Table.Tbody>
+    </Table>
+  )
 }

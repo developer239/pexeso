@@ -10,10 +10,11 @@ import {
 } from 'src/api/apiSchemas'
 import { GameBoard } from 'src/components/GameBoard'
 import { GameFinishedModal } from 'src/components/GameFinishedModal'
-import { GameOptionsWidget } from 'src/components/GameOptionsWIdget'
+import { GameInfoWidget } from 'src/components/GameInfoWidget'
 import { GamePlayersWidget } from 'src/components/GamePlayersWidget'
 import { useSocketMutation } from 'src/hooks/useSocketMutation'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
+import { GameOptionsWidget } from '../components/GameOptionsWidget'
 
 export interface IProps {
   readonly me: User
@@ -53,12 +54,18 @@ export const GamePage: FC<IProps> = ({ me }) => {
         <Grid.Col span={{ base: 12, md: 3 }} order={{ base: 1, md: 2 }}>
           <GameOptionsWidget game={game} me={me} />
           <Space h="lg" />
+          {Boolean(game.startedAt) && (
+            <>
+              <GameInfoWidget game={game} />
+              <Space h="lg" />
+            </>
+          )}
           <GamePlayersWidget
             users={game.players.map((player) => player.user)}
           />
         </Grid.Col>
       </Grid>
-      <GameFinishedModal />
+      <GameFinishedModal game={game} />
     </>
   )
 }

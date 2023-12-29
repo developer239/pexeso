@@ -43,6 +43,7 @@ export class GameService {
     }
     game.maxPlayers = this.gameConfigValues.maxPlayers
     game.timeLimitSeconds = this.gameConfigValues.gameTimeLimitS
+    game.turnLimitSeconds = this.gameConfigValues.turnTimeLimitS
     game.cardVisibleTimeSeconds = this.gameConfigValues.cardVisibleTimeS
     await this.gameRepository.save(game)
 
@@ -55,16 +56,13 @@ export class GameService {
   }
 
   getAllGames(): Promise<Game[]> {
-    return (
-      this.gameRepository
-        .createQueryBuilder('game')
-        .leftJoinAndSelect('game.players', 'players')
-        .leftJoinAndSelect('players.user', 'user')
-        .leftJoinAndSelect('game.host', 'host')
-        .where('game.startedAt IS NULL')
-        // .andWhere("game.maxPlayers > (SELECT COUNT(*) FROM game_player WHERE game_player.\"gameId\" = game.id)")
-        .getMany()
-    )
+    return this.gameRepository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.players', 'players')
+      .leftJoinAndSelect('players.user', 'user')
+      .leftJoinAndSelect('game.host', 'host')
+      .where('game.finishedAt IS NULL')
+      .getMany()
   }
 
   async joinGame(userId: number, gameId: number): Promise<Game> {
@@ -132,5 +130,103 @@ export class GameService {
 
       await this.gameRepository.update({ id: gameId }, { host: newHost })
     }
+  }
+
+  async startGame(userId: number, gameId: number): Promise<Game> {
+    const game = await this.findGame(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    if (game.startedAt) {
+      throw new Error('Game is started')
+    }
+
+    if (game.host.id !== userId) {
+      throw new Error('Only host can start the game')
+    }
+
+    game.startedAt = new Date()
+    await this.gameRepository.update(
+      { id: gameId },
+      { startedAt: game.startedAt }
+    )
+
+    return game
+  }
+
+  async endGame(game: Game) {
+    if (!game.startedAt) {
+      throw new Error('Game is not started')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    game.finishedAt = new Date()
+
+    await this.gameRepository.update(
+      { id: game.id },
+      { finishedAt: game.finishedAt }
+    )
+  }
+
+  async passTurnToNextPlayer(gameId: number): Promise<User> {
+    const game = await this.findGame(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    if (!game.startedAt) {
+      throw new Error('Game is not started')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    const currentPlayerIndex = game.players.findIndex(
+      (player) => player.isOnTurn
+    )
+
+    let nextPlayerIndex = -1
+    if (currentPlayerIndex === -1) {
+      nextPlayerIndex = 0
+    } else {
+      nextPlayerIndex =
+        currentPlayerIndex + 1 === game.players.length
+          ? 0
+          : currentPlayerIndex + 1
+    }
+
+    await this.gamePlayerRepository.update(
+      {
+        gameId: game.id,
+        // eslint-disable-next-line security/detect-object-injection
+        userId: game.players[nextPlayerIndex].user.id,
+      },
+      { isOnTurn: true }
+    )
+
+    if (currentPlayerIndex !== -1) {
+      await this.gamePlayerRepository.update(
+        {
+          gameId: game.id,
+          // eslint-disable-next-line security/detect-object-injection
+          userId: game.players[currentPlayerIndex].user.id,
+        },
+        { isOnTurn: false }
+      )
+    }
+
+    // eslint-disable-next-line security/detect-object-injection
+    return game.players[nextPlayerIndex].user
   }
 }

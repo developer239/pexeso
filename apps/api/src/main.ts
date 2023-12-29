@@ -13,6 +13,7 @@ import {
   ExceptionResponseDto,
   GridSize,
   WebSocketEvent,
+  StartGameRequestDto,
 } from 'src/modules/game/dto/game.dto'
 
 async function bootstrap() {
@@ -44,6 +45,7 @@ async function bootstrap() {
       JoinGameRequestDto,
       LeaveGameRequestDto,
       ExceptionResponseDto,
+      StartGameRequestDto,
       GridSize,
       WebSocketEvent,
     ],

@@ -11,6 +11,7 @@ export enum WebSocketEventEvent {
   gameCreated = 'gameCreated',
   gameUpdated = 'gameUpdated',
   allGames = 'allGames',
+  requestStartGame = 'requestStartGame',
   exception = 'exception',
 }
 
@@ -53,8 +54,10 @@ export type GridSize = {
 }
 
 export type GamePlayer = {
-  id: number
   user: User
+  isOnTurn: boolean
+  turnCount: number
+  score: number
 }
 
 export type Game = {
@@ -63,17 +66,11 @@ export type Game = {
   gridSize: GridSize
   maxPlayers: number
   timeLimitSeconds: number
+  turnLimitSeconds: number
   cardVisibleTimeSeconds: number
-  startedAt: Record<string, any>
+  startedAt: string
+  finishedAt: string
   players: GamePlayer[]
-  /**
-   * @format date-time
-   */
-  createdAt: string
-  /**
-   * @format date-time
-   */
-  updatedAt: string
 }
 
 export type JoinGameRequestDto = {
@@ -88,6 +85,11 @@ export type LeaveGameRequestDto = {
 
 export type ExceptionResponseDto = {
   message: string
+}
+
+export type StartGameRequestDto = {
+  userId: number
+  gameId: number
 }
 
 export type WebSocketEvent = {

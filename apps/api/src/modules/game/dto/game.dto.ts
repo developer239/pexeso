@@ -12,6 +12,15 @@ export class GridSize {
 export class GamePlayer {
   @ApiProperty({ type: () => User })
   user: User
+
+  @ApiProperty()
+  isOnTurn: boolean
+
+  @ApiProperty()
+  turnCount: number
+
+  @ApiProperty()
+  score: number
 }
 
 export class Game {
@@ -31,19 +40,19 @@ export class Game {
   timeLimitSeconds: number
 
   @ApiProperty()
+  turnLimitSeconds: number
+
+  @ApiProperty()
   cardVisibleTimeSeconds: number
 
   @ApiProperty()
-  startedAt: Date | null
+  startedAt: string
+
+  @ApiProperty()
+  finishedAt: string
 
   @ApiProperty({ type: () => [GamePlayer] })
   players: GamePlayer[]
-
-  @ApiProperty()
-  createdAt: Date
-
-  @ApiProperty()
-  updatedAt: Date
 }
 
 export class CreateGameRequestDto {
@@ -52,6 +61,14 @@ export class CreateGameRequestDto {
 }
 
 export class JoinGameRequestDto {
+  @ApiProperty()
+  userId: number
+
+  @ApiProperty()
+  gameId: number
+}
+
+export class StartGameRequestDto {
   @ApiProperty()
   userId: number
 
@@ -80,6 +97,7 @@ export enum WebSocketEvents {
   ResponseGameCreated = 'gameCreated',
   ResponseGameUpdated = 'gameUpdated',
   ResponseAllGames = 'allGames',
+  RequestStartGame = 'requestStartGame',
   ResponseException = 'exception',
 }
 
