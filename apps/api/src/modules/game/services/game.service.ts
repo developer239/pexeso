@@ -6,6 +6,7 @@ import { User } from 'src/modules/auth/entities/user.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
+// TODO: remove HTTP errors 🤡
 @Injectable()
 export class GameService {
   constructor(
@@ -23,7 +24,7 @@ export class GameService {
   async findGame(id: number) {
     const game = await this.gameRepository.findOne({
       where: { id },
-      relations: ['host', 'players'],
+      relations: ['host', 'players.user'],
     })
 
     return game
@@ -57,7 +58,7 @@ export class GameService {
     gamePlayer.user = host
     await this.gamePlayerRepository.save(gamePlayer)
 
-    return game
+    return (await this.findGame(game.id))!
   }
 
   getAllGames(): Promise<Game[]> {
@@ -98,12 +99,7 @@ export class GameService {
 
     await this.gamePlayerRepository.save({ game, user })
 
-    const updatedGame = await this.gameRepository.findOne({
-      where: { id: gameId },
-      relations: ['host', 'players'],
-    })
-
-    return updatedGame!
+    return (await this.findGame(game.id))!
   }
 
   async leaveGame(userId: number, gameId: number) {

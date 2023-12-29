@@ -8,7 +8,13 @@ import { Router } from 'src/Router'
 import { theme } from 'src/theme'
 import 'src/global.css'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+    },
+  },
+})
 
 export const App = () => (
   <React.StrictMode>

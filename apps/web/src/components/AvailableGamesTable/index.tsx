@@ -1,7 +1,8 @@
-import { Button, Table, TableData } from '@mantine/core'
+import { Table, TableData } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { FC } from 'react'
 import { Game, User } from 'src/api/apiSchemas'
+import { JoinGameButton } from 'src/components/JoinGameButton'
 
 export interface IProps {
   readonly me: User
@@ -18,16 +19,12 @@ export const AvailableGamesTable: FC<IProps> = ({ me }) => {
       game.id,
       game.host.username,
       `${game.players?.length || 0}/${game.maxPlayers}`,
-      <Button
+      <JoinGameButton
         key={game.id}
-        variant="light"
-        onClick={() => {
-          // eslint-disable-next-line no-console
-          console.log('join game as user', game.id, me.id)
-        }}
-      >
-        join
-      </Button>,
+        gameId={game.id}
+        me={me}
+        isMine={game.host.id === me.id}
+      />,
     ]),
   }
 

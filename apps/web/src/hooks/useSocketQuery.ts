@@ -21,8 +21,18 @@ export const useSocketQuery = (userId: number | undefined) => {
         ['games', 'list'],
         (oldGames: Game[] | undefined) => [...(oldGames || []), newGame]
       )
+      queryClient.setQueryData(['games', newGame.id], () => newGame)
     })
 
+    socket.on(WebSocketEventEvent.gameUpdated, (game: Game) => {
+      queryClient.setQueryData(['games', game.id], game)
+    })
+
+    socket.on(WebSocketEventEvent.joinGame, (game: Game) => {
+      queryClient.setQueryData(['games', game.id], game)
+    })
+
+    // TODO: remove this?
     if (userId !== undefined) {
       socket.on(WebSocketEventEvent.createGame, () => {
         socket.emit(WebSocketEventEvent.createGame, userId)
@@ -32,6 +42,8 @@ export const useSocketQuery = (userId: number | undefined) => {
     return () => {
       socket.off(WebSocketEventEvent.allGames)
       socket.off(WebSocketEventEvent.gameCreated)
+      socket.off(WebSocketEventEvent.gameUpdated)
+      socket.off(WebSocketEventEvent.joinGame)
     }
   }, [socket, userId, queryClient])
 }

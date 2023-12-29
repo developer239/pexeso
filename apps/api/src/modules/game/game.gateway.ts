@@ -34,7 +34,7 @@ export class GameGateway implements OnGatewayInit {
   async handleRequestAllGames(@ConnectedSocket() client: Socket) {
     try {
       const games = await this.gameService.getAllGames()
-      client.emit(WebSocketEvents.ResponseAllGames, games)
+      this.server.emit(WebSocketEvents.ResponseAllGames, games)
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
@@ -51,7 +51,8 @@ export class GameGateway implements OnGatewayInit {
 
       await client.join(roomId)
 
-      this.server.emit(WebSocketEvents.ResponseGameCreated, game)
+      this.server.to(roomId).emit(WebSocketEvents.ResponseGameCreated, game)
+      this.server.emit(WebSocketEvents.ResponseAllGames, [game])
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
