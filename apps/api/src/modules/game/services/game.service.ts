@@ -1,12 +1,11 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { IsNull, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { gameConfig, GameConfigType } from 'src/config/game.config'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
-// TODO: remove HTTP errors 🤡
 @Injectable()
 export class GameService {
   constructor(
@@ -33,13 +32,7 @@ export class GameService {
   async createGame(hostId: number): Promise<Game> {
     const host = await this.userRepository.findOne({ where: { id: hostId } })
     if (!host) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: 'User not found',
-        },
-        HttpStatus.NOT_FOUND
-      )
+      throw new Error('User not found')
     }
 
     const game = new Game()
@@ -107,13 +100,7 @@ export class GameService {
     })
 
     if (!gamePlayer) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: 'User is not in this game',
-        },
-        HttpStatus.BAD_REQUEST
-      )
+      throw new Error('User is not in this game')
     }
 
     await this.gamePlayerRepository.remove(gamePlayer)
