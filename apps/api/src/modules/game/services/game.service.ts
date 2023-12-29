@@ -160,6 +160,22 @@ export class GameService {
     return game
   }
 
+  getCurrentPlayerOnTurn = async (gameId: number): Promise<User> => {
+    const game = await this.findGame(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    const currentPlayer = game.players.find((player) => player.isOnTurn)
+
+    if (!currentPlayer) {
+      throw new Error('No player on turn')
+    }
+
+    return currentPlayer.user
+  }
+
   async endGame(game: Game) {
     if (!game.startedAt) {
       throw new Error('Game is not started')
@@ -177,7 +193,7 @@ export class GameService {
     )
   }
 
-  async passTurnToNextPlayer(gameId: number): Promise<User> {
+  async passTurnToNextPlayer(gameId: number): Promise<User | undefined> {
     const game = await this.findGame(gameId)
 
     if (!game) {
@@ -185,7 +201,7 @@ export class GameService {
     }
 
     if (!game.startedAt) {
-      throw new Error('Game is not started')
+      return
     }
 
     if (game.finishedAt) {
@@ -197,13 +213,17 @@ export class GameService {
     )
 
     let nextPlayerIndex = -1
-    if (currentPlayerIndex === -1) {
-      nextPlayerIndex = 0
+    if (game.players.length > 1) {
+      if (currentPlayerIndex === -1) {
+        nextPlayerIndex = 0
+      } else {
+        nextPlayerIndex =
+          currentPlayerIndex + 1 === game.players.length
+            ? 0
+            : currentPlayerIndex + 1
+      }
     } else {
-      nextPlayerIndex =
-        currentPlayerIndex + 1 === game.players.length
-          ? 0
-          : currentPlayerIndex + 1
+      nextPlayerIndex = 0
     }
 
     await this.gamePlayerRepository.update(
@@ -212,17 +232,25 @@ export class GameService {
         // eslint-disable-next-line security/detect-object-injection
         userId: game.players[nextPlayerIndex].user.id,
       },
-      { isOnTurn: true }
+      {
+        isOnTurn: true,
+        // eslint-disable-next-line security/detect-object-injection
+        turnCount: game.players[nextPlayerIndex].turnCount + 1,
+      }
     )
 
-    if (currentPlayerIndex !== -1) {
+    if (currentPlayerIndex !== -1 && game.players.length > 1) {
       await this.gamePlayerRepository.update(
         {
           gameId: game.id,
           // eslint-disable-next-line security/detect-object-injection
           userId: game.players[currentPlayerIndex].user.id,
         },
-        { isOnTurn: false }
+        {
+          isOnTurn: false,
+          // eslint-disable-next-line security/detect-object-injection
+          turnCount: game.players[currentPlayerIndex].turnCount + 1,
+        }
       )
     }
 

@@ -87,6 +87,7 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     try {
+      await this.gameService.passTurnToNextPlayer(data.gameId)
       await this.gameService.leaveGame(data.userId, data.gameId)
       const game = await this.gameService.findGame(data.gameId)
 
@@ -111,99 +112,73 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     try {
+      // start game
       const game = await this.gameService.startGame(data.userId, data.gameId)
-      const roomId = this.getGameRoomId(game.id)
 
+      const roomId = this.getGameRoomId(game.id)
+      await client.join(roomId)
+
+      // update room
       this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
 
       const games = await this.gameService.getAllGames()
       this.server.emit(WebSocketEvents.ResponseAllGames, games)
 
-      // handle end turn schedule
-      const callbackPassTurn = async () => {
-        const nextPlayer = await this.gameService.passTurnToNextPlayer(game.id)
-        const updatedGame = (await this.gameService.findGame(data.gameId))!
+      // Schedule the first turn
+      const scheduleTurn = async (gameId: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const roomId = this.getGameRoomId(game.id)
+
+        const nextPlayer = await this.gameService.passTurnToNextPlayer(gameId)
+        const updatedGame = await this.gameService.findGame(gameId)
 
         this.server
           .to(roomId)
           .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
 
-        const turnEndsAt = new Date(
-          game.startedAt!.getTime() + game.turnLimitSeconds * 1000
-        )
-        const millisecondTillTurnEnd = turnEndsAt.getTime() - Date.now()
-        const timeoutPassTurn = setTimeout(
-          callbackPassTurn,
-          millisecondTillTurnEnd
+        const turnEndsAt = new Date(Date.now() + game.turnLimitSeconds * 1000)
+        const millisecondsTillTurnEnd = turnEndsAt.getTime() - Date.now()
+        const timeoutId = setTimeout(
+          () => scheduleTurn(gameId),
+          millisecondsTillTurnEnd
         )
 
-        const isTimeoutExist = this.schedulerRegistry.doesExist(
-          'timeout',
-          this.getPassTurnTimeoutId(game.id, nextPlayer.id)
-        )
-        if (isTimeoutExist) {
-          this.schedulerRegistry.deleteTimeout(
-            this.getPassTurnTimeoutId(game.id, nextPlayer.id)
-          )
+        const timeoutKey = this.getPassTurnTimeoutId(gameId, nextPlayer!.id)
+        if (this.schedulerRegistry.doesExist('timeout', timeoutKey)) {
+          this.schedulerRegistry.deleteTimeout(timeoutKey)
         }
-
-        this.schedulerRegistry.addTimeout(
-          this.getPassTurnTimeoutId(game.id, nextPlayer.id),
-          timeoutPassTurn
-        )
+        this.schedulerRegistry.addTimeout(timeoutKey, timeoutId)
       }
 
-      const turnEndsAt = new Date(
-        game.startedAt!.getTime() + game.turnLimitSeconds * 1000
-      )
-      const millisecondTillTurnEnd = turnEndsAt.getTime() - Date.now()
-      const timeoutPassTurn = setTimeout(
-        callbackPassTurn,
-        millisecondTillTurnEnd
-      )
+      await scheduleTurn(game.id)
 
-      const nextPlayer = await this.gameService.passTurnToNextPlayer(game.id)
-
-      const isTimeoutExist = this.schedulerRegistry.doesExist(
-        'timeout',
-        this.getPassTurnTimeoutId(game.id, nextPlayer.id)
-      )
-      if (isTimeoutExist) {
-        this.schedulerRegistry.deleteTimeout(
-          this.getPassTurnTimeoutId(game.id, nextPlayer.id)
-        )
-      }
-      this.schedulerRegistry.addTimeout(
-        this.getPassTurnTimeoutId(game.id, nextPlayer.id),
-        timeoutPassTurn
-      )
-
-      // Find game after you passed the turn
-      const gameAfterTurnSet = (await this.gameService.findGame(data.gameId))!
-      this.server
-        .to(roomId)
-        .emit(WebSocketEvents.ResponseGameUpdated, gameAfterTurnSet)
-
-      // handle end game schedule
-      const callbackEndGame = async () => {
-        await this.gameService.endGame(game)
-        const updatedGame = (await this.gameService.findGame(data.gameId))!
-        const allGames = await this.gameService.getAllGames()
-
-        this.server
-          .to(roomId)
-          .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
-        this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
-      }
+      // Schedule end game
       const gameEndsAt = new Date(
         game.startedAt!.getTime() + game.timeLimitSeconds * 1000
       )
       const millisecondsTillGameEnds = gameEndsAt.getTime() - Date.now()
+      const timeoutGameEnds = setTimeout(async () => {
+        await this.gameService.endGame(game)
+        const currentPlayerOnTurn =
+          await this.gameService.getCurrentPlayerOnTurn(game.id)
 
-      const timeoutGameEnds = setTimeout(
-        callbackEndGame,
-        millisecondsTillGameEnds
-      )
+        const timeoutKey = this.getPassTurnTimeoutId(
+          game.id,
+          currentPlayerOnTurn.id
+        )
+        this.schedulerRegistry.deleteTimeout(timeoutKey)
+
+        const updatedGame = await this.gameService.findGame(game.id)
+
+        this.server
+          .to(roomId)
+          .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
+        this.server.emit(
+          WebSocketEvents.ResponseAllGames,
+          await this.gameService.getAllGames()
+        )
+      }, millisecondsTillGameEnds)
+
       this.schedulerRegistry.addTimeout(
         this.getGameEndsTimoutId(game.id),
         timeoutGameEnds
