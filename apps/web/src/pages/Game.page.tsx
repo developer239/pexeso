@@ -1,12 +1,18 @@
 import { Grid, Space } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Game, User } from 'src/api/apiSchemas'
+import {
+  Game,
+  JoinGameRequestDto,
+  User,
+  WebSocketEventEvent,
+} from 'src/api/apiSchemas'
 import { GameBoard } from 'src/components/GameBoard'
 import { GameFinishedModal } from 'src/components/GameFinishedModal'
 import { GameOptionsWidget } from 'src/components/GameOptionsWIdget'
 import { GamePlayersWidget } from 'src/components/GamePlayersWidget'
+import { useSocketMutation } from 'src/hooks/useSocketMutation'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
 
 export interface IProps {
@@ -14,9 +20,17 @@ export interface IProps {
 }
 
 export const GamePage: FC<IProps> = ({ me }) => {
-  useSocketQuery(me.id)
-
   const { gameId } = useParams()
+
+  useSocketQuery(me.id)
+  const joinGame = useSocketMutation<JoinGameRequestDto>(
+    WebSocketEventEvent.joinGame
+  )
+
+  useEffect(() => {
+    joinGame({ gameId: Number(gameId), userId: me.id })
+  }, [])
+
   const { data: game, isLoading } = useQuery<Game>({
     queryKey: ['games', Number(gameId)],
   })
