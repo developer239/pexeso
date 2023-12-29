@@ -17,7 +17,9 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number
 
-  @ManyToOne(() => User, (user) => user.games)
+  @ManyToOne(() => User, (user) => user.games, {
+    cascade: true,
+  })
   host: Relation<User>
 
   @Column({

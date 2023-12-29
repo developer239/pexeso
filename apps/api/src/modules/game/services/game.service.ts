@@ -92,25 +92,33 @@ export class GameService {
   }
 
   async leaveGame(userId: number, gameId: number) {
-    const gamePlayer = await this.gamePlayerRepository.findOne({
-      where: {
-        user: { id: userId },
-        game: { id: gameId },
-      },
+    const game = await this.gameRepository.findOne({
+      where: { id: gameId },
+      relations: ['players', 'players.user'],
     })
 
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    const gamePlayer = game.players.find((player) => player.user.id === userId)
     if (!gamePlayer) {
       throw new Error('User is not in this game')
     }
 
-    await this.gamePlayerRepository.remove(gamePlayer)
-
-    const currentGamePlayerCount = await this.gamePlayerRepository.count({
-      where: { game: { id: gameId } },
+    await this.gamePlayerRepository.delete({
+      gameId: gamePlayer.gameId,
+      userId: gamePlayer.userId,
     })
 
-    if (currentGamePlayerCount === 0) {
+    game.players = game.players.filter((player) => player.user.id !== userId)
+
+    if (game.players.length === 0) {
       await this.gameRepository.delete({ id: gameId })
+    } else {
+      const newHost = game.players[0].user
+
+      await this.gameRepository.update({ id: gameId }, { host: newHost })
     }
   }
 }
