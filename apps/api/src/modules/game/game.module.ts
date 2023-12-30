@@ -3,6 +3,8 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
+import { Card } from 'src/modules/game/entities/card.entity'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { GameRepository } from 'src/modules/game/entities/game.repository'
@@ -12,7 +14,7 @@ import { GameService } from 'src/modules/game/services/game.service'
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([Game, User, GamePlayer]),
+    TypeOrmModule.forFeature([Game, User, GamePlayer, Card, GameCard]),
   ],
   providers: [GameService, GameGateway, GameRepository, UsersRepository],
   exports: [GameService],

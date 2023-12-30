@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer'
+import { Exclude } from 'class-transformer'
 import {
   Column,
   CreateDateColumn,
@@ -10,6 +10,7 @@ import {
   BeforeInsert,
   Relation,
 } from 'typeorm'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { EntityHelper } from 'src/utils/entity-helper'
@@ -30,6 +31,9 @@ export class User extends EntityHelper {
 
   @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.user)
   gamePlayers: Relation<GamePlayer>[]
+
+  @OneToMany(() => GameCard, (gameCard) => gameCard.matchedBy)
+  matchedCards: GameCard[]
 
   @Exclude({ toPlainOnly: true })
   @CreateDateColumn({ type: 'timestamp' })

@@ -6,6 +6,8 @@ import { appConfig } from 'src/config/app.config'
 import { databaseConfig } from 'src/config/database.config'
 import { UserSeedModule } from 'src/modules/database/seeds/user/user-seed.module'
 import { TypeOrmConfigService } from 'src/modules/database/typeorm-config.service'
+import { Card } from 'src/modules/game/entities/card.entity'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
@@ -13,7 +15,7 @@ import { Game } from 'src/modules/game/entities/game.entity'
   imports: [
     UserSeedModule,
     // TODO: create game seed module
-    TypeOrmModule.forFeature([Game, GamePlayer]),
+    TypeOrmModule.forFeature([Game, GamePlayer, Card, GameCard]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],

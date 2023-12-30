@@ -10,6 +10,8 @@ import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
 import { UsernameAuthGuard } from 'src/modules/auth/guards/username.guard'
 import { JwtStrategy } from 'src/modules/auth/strategies/jwt.strategy'
+import { Card } from 'src/modules/game/entities/card.entity'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
@@ -27,7 +29,7 @@ import { DoesNotExist } from 'src/utils/validators/does-not-exist.validator'
         },
       }),
     }),
-    TypeOrmModule.forFeature([User, Game, GamePlayer]),
+    TypeOrmModule.forFeature([User, Game, GamePlayer, GameCard, Card]),
   ],
   controllers: [SessionController],
   providers: [

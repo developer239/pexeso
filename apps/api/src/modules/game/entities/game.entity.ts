@@ -9,6 +9,7 @@ import {
   Relation,
 } from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { GridSizeTransformer } from 'src/modules/game/transformers/gridSize.transformer'
 
@@ -48,6 +49,9 @@ export class Game {
 
   @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.game)
   players: Relation<GamePlayer>[]
+
+  @OneToMany(() => GameCard, (gameCard) => gameCard.game)
+  cards: Relation<GameCard>[]
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date

@@ -30,7 +30,4 @@ export class GamePlayer {
 
   @Column({ default: 0 })
   turnCount: number
-
-  @Column({ default: 0 })
-  score: number
 }
