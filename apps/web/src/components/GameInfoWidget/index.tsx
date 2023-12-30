@@ -17,8 +17,8 @@ export const GameInfoWidget: FC<IProps> = ({ game }) => {
 
   const isTwoCardsFlipped = currentPlayer?.cardsFlippedThisTurn === 2
   const isAllCardsFlippedAllCardsMatched =
-    game.cards.find((card) => card.isMatched) ===
-    game.cards.find((card) => card.isFlipped)
+    game.cards.filter((card) => card.isMatched).length ===
+    game.cards.filter((card) => card.isFlipped).length
 
   return (
     <Paper p="md" shadow="xs">
