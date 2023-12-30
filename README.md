@@ -5,7 +5,7 @@
 | Name             | Platform | Link  |
 | ---------------- | -------- | ----- |
 | [API](/apps/api) | Backend  | [WIP] |
-| [Wen](/apps/web) | Frontend | [WIP] |
+| [Web](/apps/web) | Frontend | [WIP] |
 
 ## Development
 
