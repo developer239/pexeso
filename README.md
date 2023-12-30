@@ -2,9 +2,10 @@
 
 ## Apps
 
-| Name             | Platform | Link                                                                                 |
-| ---------------- | -------- | ------------------------------------------------------------------------------------ |
-| [API](/apps/api) | Backend  | [https://api-zscw4whrpq-ey.a.run.app/docs](https://api-zscw4whrpq-ey.a.run.app/docs) |
+| Name             | Platform | Link  |
+| ---------------- | -------- | ----- |
+| [API](/apps/api) | Backend  | [WIP] |
+| [Wen](/apps/web) | Frontend | [WIP] |
 
 ## Development
 
