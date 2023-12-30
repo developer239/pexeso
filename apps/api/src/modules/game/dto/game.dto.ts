@@ -14,7 +14,7 @@ export class GamePlayer {
   user: User
 
   @ApiProperty()
-  isOnTurn: boolean
+  turnStartedAt: string
 
   @ApiProperty()
   turnCount: number

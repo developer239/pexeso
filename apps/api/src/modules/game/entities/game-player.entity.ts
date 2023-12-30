@@ -25,8 +25,8 @@ export class GamePlayer {
   @JoinColumn({ name: 'userId' })
   user: Relation<User>
 
-  @Column({ default: false })
-  isOnTurn: boolean
+  @Column({ type: 'timestamp', nullable: true })
+  turnStartedAt: Date | null
 
   @Column({ default: 0 })
   turnCount: number

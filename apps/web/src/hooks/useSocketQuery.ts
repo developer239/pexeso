@@ -20,16 +20,23 @@ export const useSocketQuery = (userId: number | undefined) => {
       queryClient.setQueryData(['games', 'list'], games)
     })
 
-    socket.on(WebSocketEventEvent.gameCreated, (newGame: Game) => {
-      queryClient.setQueryData(
-        ['games', 'list'],
-        (oldGames: Game[] | undefined) => [...(oldGames || []), newGame]
-      )
-      queryClient.setQueryData(['games', newGame.id], () => newGame)
-    })
-
     socket.on(WebSocketEventEvent.gameUpdated, (game: Game) => {
       queryClient.setQueryData(['games', game.id], game)
+
+      queryClient.setQueryData(
+        ['games', 'list'],
+        (currentListOfGames: Game[] | undefined) => {
+          const gameIndex = currentListOfGames?.findIndex(
+            (currentGame) => currentGame.id === game.id
+          )
+
+          if (gameIndex === -1) {
+            return [...(currentListOfGames || []), game]
+          }
+
+          return currentListOfGames
+        }
+      )
     })
 
     socket.on(WebSocketEventEvent.joinGame, (game: Game) => {
@@ -42,6 +49,7 @@ export const useSocketQuery = (userId: number | undefined) => {
 
     socket.on(
       WebSocketEventEvent.exception,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (exception: ExceptionResponseDto) => {
         // TODO: handle error
       }
@@ -49,7 +57,6 @@ export const useSocketQuery = (userId: number | undefined) => {
 
     return () => {
       socket.off(WebSocketEventEvent.allGames)
-      socket.off(WebSocketEventEvent.gameCreated)
       socket.off(WebSocketEventEvent.gameUpdated)
       socket.off(WebSocketEventEvent.joinGame)
       socket.off(WebSocketEventEvent.createGame)

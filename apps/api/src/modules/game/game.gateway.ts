@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common'
 import { SchedulerRegistry } from '@nestjs/schedule'
 import {
   WebSocketGateway,
@@ -160,10 +161,8 @@ export class GameGateway implements OnGatewayInit {
 
       const millisecondsTillTurnEnd = game.getMsTillTurnEnds()
       const timeoutId = setTimeout(() => {
-        this.scheduleAutoPassTurnToNextPlayer(game.id, roomId).catch(
-          // TODO: use nest logger
-          // eslint-disable-next-line no-console
-          (error) => console.log(error)
+        this.scheduleAutoPassTurnToNextPlayer(game.id, roomId).catch((error) =>
+          Logger.error(error)
         )
       }, millisecondsTillTurnEnd)
 
@@ -173,9 +172,7 @@ export class GameGateway implements OnGatewayInit {
       }
       this.schedulerRegistry.addTimeout(timeoutKey, timeoutId)
     } catch (error) {
-      // TODO: use nest logger
-      // eslint-disable-next-line no-console
-      console.error(error)
+      Logger.error(error)
     }
   }
 
@@ -197,11 +194,7 @@ export class GameGateway implements OnGatewayInit {
       }
 
       const timeoutGameEnds = setTimeout(() => {
-        handleFinishGame().catch(
-          // TODO: use nest logger
-          // eslint-disable-next-line no-console
-          (error) => console.log(error)
-        )
+        handleFinishGame().catch((error) => Logger.error(error))
       }, millisecondsTillGameEnds)
 
       this.schedulerRegistry.addTimeout(
@@ -209,9 +202,7 @@ export class GameGateway implements OnGatewayInit {
         timeoutGameEnds
       )
     } catch (error) {
-      // TODO: use nest logger
-      // eslint-disable-next-line no-console
-      console.error(error)
+      Logger.error(error)
     }
   }
 

@@ -35,7 +35,7 @@ export const GameOptionsWidget: React.FC<IProps> = ({ me, game }) => {
         <ElapsedTime
           startedAt={game.startedAt}
           timeLimitSeconds={game.timeLimitSeconds}
-          showProgressBar
+          shouldShowProgressBar
         />
       )}
       {!game.startedAt && <StartGameButton me={me} game={game} />}

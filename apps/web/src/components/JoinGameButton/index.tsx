@@ -43,7 +43,7 @@ export const JoinGameButton: FC<IProps> = ({ gameId, me, isMine, game }) => {
   if (game.startedAt) {
     return (
       <Button disabled variant="light" size="xs" w={150}>
-        Started: <ElapsedTime startedAt={game.startedAt!} showText />
+        Started: <ElapsedTime startedAt={game.startedAt!} shouldShowText />
       </Button>
     )
   }

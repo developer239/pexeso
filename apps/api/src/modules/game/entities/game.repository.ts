@@ -99,7 +99,7 @@ export class GameRepository {
         userId: playerId,
       },
       {
-        isOnTurn: true,
+        turnStartedAt: new Date(),
         turnCount: () => 'turnCount + 1',
       }
     )
@@ -109,7 +109,7 @@ export class GameRepository {
         userId: Not(playerId),
       },
       {
-        isOnTurn: false,
+        turnStartedAt: null,
       }
     )
   }

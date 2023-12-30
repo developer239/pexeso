@@ -54,7 +54,7 @@ export type GridSize = {
 
 export type GamePlayer = {
   user: User
-  isOnTurn: boolean
+  turnStartedAt: string
   turnCount: number
   score: number
 }

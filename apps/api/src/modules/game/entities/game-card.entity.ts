@@ -1,30 +1,35 @@
 import {
   Entity,
-  PrimaryColumn,
   ManyToOne,
   JoinColumn,
   Relation,
   Column,
+  PrimaryGeneratedColumn,
+  Index,
 } from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { Card } from 'src/modules/game/entities/card.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
 @Entity()
+@Index(['gameId', 'cardId'])
 export class GameCard {
-  @PrimaryColumn()
-  gameId: number
-
-  @PrimaryColumn()
-  cardId: number
+  @PrimaryGeneratedColumn()
+  id: number
 
   @ManyToOne(() => Game, (game) => game.cards)
   @JoinColumn({ name: 'gameId' })
   game: Relation<Game>
 
-  @ManyToOne(() => Card, (user) => user.gameCards)
-  @JoinColumn({ name: 'userId' })
+  @Column()
+  gameId: number
+
+  @ManyToOne(() => Card, (card) => card.gameCards)
+  @JoinColumn({ name: 'cardId' })
   card: Relation<Card>
+
+  @Column()
+  cardId: number
 
   @Column()
   row: number
@@ -36,7 +41,11 @@ export class GameCard {
   isMatched: boolean
 
   @ManyToOne(() => User, (user) => user.matchedCards)
+  @JoinColumn({ name: 'matchedById' })
   matchedBy: Relation<User>
+
+  @Column({ nullable: true })
+  matchedById: number
 
   @Column()
   isFlipped: boolean

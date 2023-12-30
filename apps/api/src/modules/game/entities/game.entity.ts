@@ -72,12 +72,12 @@ export class Game {
   }
 
   getPlayerOnTurn(): Relation<GamePlayer | undefined> {
-    return this.players.find((player) => player.isOnTurn)
+    return this.players.find((player) => player.turnStartedAt)
   }
 
   getPlayerToPassTurn() {
     const currentPlayerIndex = this.players.findIndex(
-      (player) => player.isOnTurn
+      (player) => player.turnStartedAt
     )
     const nextPlayerIndex = (currentPlayerIndex + 1) % this.players.length
 
