@@ -95,4 +95,8 @@ export class Game {
 
     return turnEndsAt.getTime() - Date.now()
   }
+
+  isFull() {
+    return this.players.length === this.maxPlayers
+  }
 }

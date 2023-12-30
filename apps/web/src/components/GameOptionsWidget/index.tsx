@@ -22,6 +22,8 @@ export const GameOptionsWidget: React.FC<IProps> = ({ me, game }) => {
     WebSocketEventEvent.leaveGame
   )
 
+  const isMeInPlayers = game.players.some((player) => player.user.id === me.id)
+
   const handleLeaveGame = () => {
     leaveGame({ userId: me.id, gameId: game.id })
     navigate('/lobby')
@@ -37,10 +39,20 @@ export const GameOptionsWidget: React.FC<IProps> = ({ me, game }) => {
         />
       )}
       {!game.startedAt && <StartGameButton me={me} game={game} />}
-      <Space h="md" />
-      <Button onClick={handleLeaveGame} fullWidth variant="filled" color="red">
-        {game.startedAt ? 'Forfeit' : 'Leave Game'}
-      </Button>
+
+      {isMeInPlayers && (
+        <>
+          <Space h="md" />
+          <Button
+            onClick={handleLeaveGame}
+            fullWidth
+            variant="filled"
+            color="red"
+          >
+            {game.startedAt ? 'Forfeit' : 'Leave Game'}
+          </Button>
+        </>
+      )}
     </Paper>
   )
 }

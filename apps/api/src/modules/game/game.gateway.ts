@@ -71,9 +71,14 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     try {
-      const game = await this.gameService.joinGame(data.userId, data.gameId)
-      const roomId = this.getGameRoomId(game.id)
+      let game = await this.gameService.findGameById(data.gameId)
 
+      // allow spectators
+      if (!game.startedAt && !game.isFull() && !game.finishedAt) {
+        game = await this.gameService.joinGame(data.userId, data.gameId)
+      }
+
+      const roomId = this.getGameRoomId(game.id)
       await client.join(roomId)
 
       this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
