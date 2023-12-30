@@ -1,4 +1,4 @@
-import { Button, Flex, Paper, Progress, Space } from '@mantine/core'
+import { Button, CopyButton, Flex, Paper, Progress, Space } from '@mantine/core'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -38,7 +38,24 @@ export const GameOptionsWidget: React.FC<IProps> = ({ me, game }) => {
           shouldShowProgressBar
         />
       )}
-      {!game.startedAt && <StartGameButton me={me} game={game} />}
+      {!game.startedAt && (
+        <>
+          <StartGameButton me={me} game={game} />
+          <Space h="md" />
+          <CopyButton value={window.location.href}>
+            {({ copied, copy }) => (
+              <Button
+                fullWidth
+                variant="light"
+                color={copied ? 'teal' : 'blue'}
+                onClick={copy}
+              >
+                {copied ? 'Copied join link' : 'Copy join link'}
+              </Button>
+            )}
+          </CopyButton>
+        </>
+      )}
 
       {isMeInPlayers && (
         <>

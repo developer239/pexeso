@@ -11,10 +11,10 @@ import {
 import { GameBoard } from 'src/components/GameBoard'
 import { GameFinishedModal } from 'src/components/GameFinishedModal'
 import { GameInfoWidget } from 'src/components/GameInfoWidget'
+import { GameOptionsWidget } from 'src/components/GameOptionsWidget'
 import { GamePlayersWidget } from 'src/components/GamePlayersWidget'
 import { useSocketMutation } from 'src/hooks/useSocketMutation'
 import { useSocketQuery } from 'src/hooks/useSocketQuery'
-import { GameOptionsWidget } from '../components/GameOptionsWidget'
 
 export interface IProps {
   readonly me: User
@@ -41,15 +41,14 @@ export const GamePage: FC<IProps> = ({ me }) => {
   }
 
   if (!game) {
-    // TODO: redirect user to lobby if game not loaded at all (if user didn't join the room or created the game)
-    return null
+    return <>Game not found</>
   }
 
   return (
     <>
       <Grid>
         <Grid.Col span={{ base: 12, md: 9 }} order={{ base: 2, md: 1 }}>
-          <GameBoard rowsCount={4} columnsCount={4} />
+          <GameBoard game={game} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 3 }} order={{ base: 1, md: 2 }}>
           <GameOptionsWidget game={game} me={me} />
@@ -60,9 +59,7 @@ export const GamePage: FC<IProps> = ({ me }) => {
               <Space h="lg" />
             </>
           )}
-          <GamePlayersWidget
-            users={game.players.map((player) => player.user)}
-          />
+          <GamePlayersWidget game={game} />
         </Grid.Col>
       </Grid>
       <GameFinishedModal game={game} />

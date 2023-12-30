@@ -53,6 +53,7 @@ export class GameGateway implements OnGatewayInit {
 
       this.server.emit(WebSocketEvents.ResponseAllGames, games)
     } catch (error) {
+      Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
@@ -71,6 +72,7 @@ export class GameGateway implements OnGatewayInit {
       this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
       this.server.emit(WebSocketEvents.ResponseAllGames, [game])
     } catch (error) {
+      Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
@@ -93,6 +95,7 @@ export class GameGateway implements OnGatewayInit {
 
       this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
     } catch (error) {
+      Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
@@ -122,6 +125,7 @@ export class GameGateway implements OnGatewayInit {
       const allGames = await this.gameService.getAllGames()
       this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
     } catch (error) {
+      Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }
@@ -144,6 +148,7 @@ export class GameGateway implements OnGatewayInit {
 
       await this.scheduleAutoPassTurnToNextPlayer(game.id, roomId)
     } catch (error) {
+      Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
   }

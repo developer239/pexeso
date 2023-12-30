@@ -34,7 +34,6 @@
 }
 
 .cardFront {
-    background-image: url('https://fastly.picsum.photos/id/866/400/400.jpg?hmac=oHJBlOQwtaF75oX43dFtPf4At_GRLEx9FQqkkfpLR5U');
     background-size: cover;
     transform: rotateY(180deg);
 }

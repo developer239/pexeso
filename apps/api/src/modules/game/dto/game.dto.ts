@@ -19,8 +19,39 @@ export class GamePlayer {
   @ApiProperty()
   turnCount: number
 
+  @ApiProperty({ type: () => [Card] })
+  matchedCards?: Card[]
+}
+
+export class Card {
   @ApiProperty()
-  score: number
+  id: number
+
+  @ApiProperty()
+  image: string
+}
+
+export class GameCard {
+  @ApiProperty()
+  id: number
+
+  @ApiProperty({ type: () => Card })
+  card?: Card
+
+  @ApiProperty()
+  row: number
+
+  @ApiProperty()
+  col: number
+
+  @ApiProperty()
+  isMatched: boolean
+
+  @ApiProperty({ type: () => User })
+  matchedBy: User
+
+  @ApiProperty()
+  isFlipped: boolean
 }
 
 export class Game {
@@ -53,6 +84,9 @@ export class Game {
 
   @ApiProperty({ type: () => [GamePlayer] })
   players: GamePlayer[]
+
+  @ApiProperty({ type: () => [GameCard] })
+  cards: GameCard[]
 }
 
 export class CreateGameRequestDto {

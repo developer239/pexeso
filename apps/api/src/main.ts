@@ -14,6 +14,8 @@ import {
   GridSize,
   WebSocketEvent,
   StartGameRequestDto,
+  GameCard,
+  Card,
 } from 'src/modules/game/dto/game.dto'
 
 async function bootstrap() {
@@ -47,6 +49,8 @@ async function bootstrap() {
       ExceptionResponseDto,
       StartGameRequestDto,
       GridSize,
+      GameCard,
+      Card,
       WebSocketEvent,
     ],
   })

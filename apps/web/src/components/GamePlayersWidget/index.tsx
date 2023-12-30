@@ -1,15 +1,21 @@
-import { Avatar, Paper, Table, TableData } from '@mantine/core'
+import { Paper, Table, TableData } from '@mantine/core'
 import React, { FC } from 'react'
-import { User } from 'src/api/apiSchemas'
+import { Game } from 'src/api/apiSchemas'
 
 export interface IProps {
-  readonly users: User[]
+  readonly game: Game
 }
 
-export const GamePlayersWidget: FC<IProps> = ({ users }) => {
+export const GamePlayersWidget: FC<IProps> = ({ game }) => {
   const tableData: TableData = {
-    head: ['', 'Name'],
-    body: users.map((user) => [<Avatar key={0} />, user.username]),
+    head: game.startedAt ? ['Name', 'Score'] : ['Name'],
+    body: game.players.map((player) => {
+      if (game.startedAt) {
+        return [player.user.username, (player.matchedCards || []).length / 2]
+      }
+
+      return [player.user.username]
+    }),
   }
 
   return (

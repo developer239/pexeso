@@ -5,8 +5,10 @@ import {
   JoinColumn,
   Relation,
   Column,
+  OneToMany,
 } from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
+import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
 @Entity()
@@ -30,4 +32,14 @@ export class GamePlayer {
 
   @Column({ default: 0 })
   turnCount: number
+
+  @OneToMany(() => GameCard, (gameCard) => gameCard.matchedBy)
+  matchedCards: GameCard[]
+
+  get score(): number {
+    const matchedPairsCount = this.matchedCards.filter(
+      (card) => card.isMatched
+    ).length
+    return matchedPairsCount / 2
+  }
 }

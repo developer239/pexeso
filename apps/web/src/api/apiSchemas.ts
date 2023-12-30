@@ -52,11 +52,26 @@ export type GridSize = {
   height: number
 }
 
+export type Card = {
+  id: number
+  image: string
+}
+
 export type GamePlayer = {
   user: User
   turnStartedAt: string
   turnCount: number
-  score: number
+  matchedCards: Card[]
+}
+
+export type GameCard = {
+  id: number
+  card: Card
+  row: number
+  col: number
+  isMatched: boolean
+  matchedBy: User
+  isFlipped: boolean
 }
 
 export type Game = {
@@ -70,6 +85,7 @@ export type Game = {
   startedAt: string
   finishedAt: string
   players: GamePlayer[]
+  cards: GameCard[]
 }
 
 export type JoinGameRequestDto = {

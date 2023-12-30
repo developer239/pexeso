@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer'
 import {
   Entity,
   ManyToOne,
@@ -9,6 +10,7 @@ import {
 } from 'typeorm'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { Card } from 'src/modules/game/entities/card.entity'
+import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
 
 @Entity()
@@ -21,6 +23,7 @@ export class GameCard {
   @JoinColumn({ name: 'gameId' })
   game: Relation<Game>
 
+  @Exclude()
   @Column()
   gameId: number
 
@@ -28,6 +31,7 @@ export class GameCard {
   @JoinColumn({ name: 'cardId' })
   card: Relation<Card>
 
+  @Exclude()
   @Column()
   cardId: number
 
@@ -37,16 +41,20 @@ export class GameCard {
   @Column()
   col: number
 
-  @Column()
+  @Column({ default: false })
   isMatched: boolean
 
-  @ManyToOne(() => User, (user) => user.matchedCards, { onDelete: 'CASCADE' })
+  // @ts-ignore
+  @ManyToOne(() => GamePlayer, (gamePlayer) => gamePlayer.matchedCards, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'matchedById' })
-  matchedBy: Relation<User>
+  matchedBy: Relation<GamePlayer>
 
+  @Exclude()
   @Column({ nullable: true })
   matchedById: number
 
-  @Column()
+  @Column({ default: false })
   isFlipped: boolean
 }

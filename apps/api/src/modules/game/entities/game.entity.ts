@@ -23,6 +23,7 @@ export class Game {
   })
   host: Relation<User>
 
+  // TODO: rename to rowsxcols
   @Column({
     type: 'varchar',
     transformer: new GridSizeTransformer(),
