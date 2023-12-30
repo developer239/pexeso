@@ -11,6 +11,10 @@ export class GameService {
     private readonly userRepository: UsersRepository
   ) {}
 
+  pruneGames() {
+    return this.gameRepository.prune()
+  }
+
   async findGameById(gameId: number) {
     const game = await this.gameRepository.findById(gameId)
 

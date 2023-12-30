@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { SchedulerRegistry } from '@nestjs/schedule'
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule'
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -36,6 +36,14 @@ export class GameGateway implements OnGatewayInit {
 
   afterInit(/* server: Server */) {
     // Do something special
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async pruneGames() {
+    await this.gameService.pruneGames()
+
+    const allGames = await this.gameService.getAllGames()
+    this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
   }
 
   @SubscribeMessage(WebSocketEvents.RequestAllGames)

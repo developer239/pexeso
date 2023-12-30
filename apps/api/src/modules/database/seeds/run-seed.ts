@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DataSource } from 'typeorm'
+import { GameSeedService } from 'src/modules/database/seeds/game/game-seed.service'
 import { SeedModule } from 'src/modules/database/seeds/seeed.module'
 import { UserSeedService } from 'src/modules/database/seeds/user/user-seed.service'
 
@@ -23,6 +24,7 @@ const runSeed = async () => {
   await clearDatabase(app)
 
   await app.get(UserSeedService).run()
+  await app.get(GameSeedService).run()
 
   await app.close()
 }

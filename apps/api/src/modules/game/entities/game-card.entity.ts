@@ -17,14 +17,14 @@ export class GameCard {
   @PrimaryGeneratedColumn()
   id: number
 
-  @ManyToOne(() => Game, (game) => game.cards)
+  @ManyToOne(() => Game, (game) => game.cards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'gameId' })
   game: Relation<Game>
 
   @Column()
   gameId: number
 
-  @ManyToOne(() => Card, (card) => card.gameCards)
+  @ManyToOne(() => Card, (card) => card.gameCards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cardId' })
   card: Relation<Card>
 
@@ -40,7 +40,7 @@ export class GameCard {
   @Column()
   isMatched: boolean
 
-  @ManyToOne(() => User, (user) => user.matchedCards)
+  @ManyToOne(() => User, (user) => user.matchedCards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'matchedById' })
   matchedBy: Relation<User>
 

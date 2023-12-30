@@ -17,11 +17,11 @@ export class GamePlayer {
   @PrimaryColumn()
   userId: number
 
-  @ManyToOne(() => Game, (game) => game.players)
+  @ManyToOne(() => Game, (game) => game.players, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'gameId' })
   game: Relation<Game>
 
-  @ManyToOne(() => User, (user) => user.gamePlayers)
+  @ManyToOne(() => User, (user) => user.gamePlayers, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: Relation<User>
 

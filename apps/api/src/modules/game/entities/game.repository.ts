@@ -16,6 +16,32 @@ export class GameRepository {
     private readonly gamePlayerRepository: Repository<GamePlayer>
   ) {}
 
+  async prune() {
+    const now = new Date()
+
+    // prune games that are started but not finished and have exceeded time limit
+    await this.gameRepository
+      .createQueryBuilder()
+      .delete()
+      .where(
+        `"finishedAt" IS NULL
+        AND "startedAt" IS NOT NULL
+        AND "startedAt" + "timeLimitSeconds" * INTERVAL '1 second' < :now`,
+        { now }
+      )
+      .execute()
+
+    // prune games that were created but not started in 20 minutes
+    await this.gameRepository
+      .createQueryBuilder()
+      .delete()
+      .where('"createdAt" < :timeLimit', {
+        timeLimit: new Date(now.getTime() - 20 * 600 * 1000),
+      })
+      .andWhere('"startedAt" IS NULL')
+      .execute()
+  }
+
   findById(id: number): Promise<Game | null> {
     return this.gameRepository.findOne({
       where: { id },
