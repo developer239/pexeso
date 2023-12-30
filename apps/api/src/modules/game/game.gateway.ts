@@ -18,6 +18,7 @@ import {
 import { Game } from 'src/modules/game/entities/game.entity'
 import { GameService } from 'src/modules/game/services/game.service'
 
+// TODO: implement global exception filter
 @WebSocketGateway({
   namespace: '/games',
   cors: {
@@ -158,11 +159,13 @@ export class GameGateway implements OnGatewayInit {
         .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
 
       const millisecondsTillTurnEnd = game.getMsTillTurnEnds()
-      const timeoutId = setTimeout(
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        () => this.scheduleAutoPassTurnToNextPlayer(game.id, roomId),
-        millisecondsTillTurnEnd
-      )
+      const timeoutId = setTimeout(() => {
+        this.scheduleAutoPassTurnToNextPlayer(game.id, roomId).catch(
+          // TODO: use nest logger
+          // eslint-disable-next-line no-console
+          (error) => console.log(error)
+        )
+      }, millisecondsTillTurnEnd)
 
       const timeoutKey = this.getPassTurnTimeoutId(game.id, nextPlayer!.id)
       if (this.schedulerRegistry.doesExist('timeout', timeoutKey)) {
@@ -181,7 +184,7 @@ export class GameGateway implements OnGatewayInit {
     try {
       const millisecondsTillGameEnds = game.getMsTillGameEnds()
 
-      const callback = async () => {
+      const handleFinishGame = async () => {
         await this.gameService.finishGame(game.id)
 
         const updatedGame = await this.gameService.findGameById(game.id)
@@ -193,8 +196,13 @@ export class GameGateway implements OnGatewayInit {
         this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      const timeoutGameEnds = setTimeout(callback, millisecondsTillGameEnds)
+      const timeoutGameEnds = setTimeout(() => {
+        handleFinishGame().catch(
+          // TODO: use nest logger
+          // eslint-disable-next-line no-console
+          (error) => console.log(error)
+        )
+      }, millisecondsTillGameEnds)
 
       this.schedulerRegistry.addTimeout(
         this.getGameEndsTimoutId(game.id),
