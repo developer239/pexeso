@@ -36,6 +36,9 @@ export class GamePlayer {
   @OneToMany(() => GameCard, (gameCard) => gameCard.matchedBy)
   matchedCards: GameCard[]
 
+  @Column({ default: 0 })
+  cardsFlippedThisTurn: number
+
   get score(): number {
     const matchedPairsCount = this.matchedCards.filter(
       (card) => card.isMatched

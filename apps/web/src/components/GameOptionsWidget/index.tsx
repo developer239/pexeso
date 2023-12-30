@@ -1,4 +1,4 @@
-import { Button, CopyButton, Flex, Paper, Progress, Space } from '@mantine/core'
+import { Button, CopyButton, Paper, Space } from '@mantine/core'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -36,6 +36,8 @@ export const GameOptionsWidget: React.FC<IProps> = ({ me, game }) => {
           startedAt={game.startedAt}
           timeLimitSeconds={game.timeLimitSeconds}
           shouldShowProgressBar
+          isFull={Boolean(game.finishedAt)}
+          isGameWidget
         />
       )}
       {!game.startedAt && (

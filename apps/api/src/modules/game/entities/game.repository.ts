@@ -7,7 +7,7 @@ import { CardRepository } from 'src/modules/game/entities/card.repository'
 import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
-import { shuffleArray } from 'src/utils/common'
+// import { shuffleArray } from 'src/utils/common'
 
 @Injectable()
 export class GameRepository {
@@ -118,7 +118,8 @@ export class GameRepository {
       requestedNumberOfCards
     )
     const pairedCardsStack = [...cards, ...cards]
-    shuffleArray(pairedCardsStack)
+    // TODO: shuffle
+    // shuffleArray(pairedCardsStack)
 
     const gameCardsToAdd: GameCard[] = []
     for (let row = 0; row < game.gridSize.height; row += 1) {
@@ -187,6 +188,7 @@ export class GameRepository {
       {
         turnStartedAt: new Date(),
         turnCount: () => 'turnCount + 1',
+        cardsFlippedThisTurn: 0,
       }
     )
     await this.gamePlayerRepository.update(
@@ -196,6 +198,21 @@ export class GameRepository {
       },
       {
         turnStartedAt: null,
+        cardsFlippedThisTurn: 0,
+      }
+    )
+  }
+
+  giveExtraTurn(gameId: number, userId: number) {
+    return this.gamePlayerRepository.update(
+      {
+        gameId,
+        userId,
+      },
+      {
+        turnStartedAt: new Date(),
+        turnCount: () => 'turnCount + 1',
+        cardsFlippedThisTurn: 0,
       }
     )
   }

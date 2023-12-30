@@ -1,13 +1,14 @@
 import { Grid } from '@mantine/core'
 import React from 'react'
-import { Game } from 'src/api/apiSchemas'
+import { Game, User } from 'src/api/apiSchemas'
 import { GameCard } from 'src/components/GameCard'
 
 interface IGameBoardProps {
   readonly game: Game
+  readonly me: User
 }
 
-export const GameBoard: React.FC<IGameBoardProps> = ({ game }) => {
+export const GameBoard: React.FC<IGameBoardProps> = ({ game, me }) => {
   const cards = Array.from(
     { length: game.gridSize.height * game.gridSize.width },
     () => ({
@@ -22,7 +23,7 @@ export const GameBoard: React.FC<IGameBoardProps> = ({ game }) => {
         const column = index % game.gridSize.width
         return (
           <Grid.Col key={`${row}-${column}`} span={1}>
-            <GameCard game={game} row={row} column={column} />
+            <GameCard me={me} game={game} row={row} column={column} />
           </Grid.Col>
         )
       })}

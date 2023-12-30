@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { User } from 'src/modules/auth/entities/user.entity'
 import { UsersRepository } from 'src/modules/auth/entities/users.repository'
+import { CardRepository } from 'src/modules/game/entities/card.repository'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { GameRepository } from 'src/modules/game/entities/game.repository'
 
 @Injectable()
 export class GameService {
   constructor(
+    private readonly cardRepository: CardRepository,
     private readonly gameRepository: GameRepository,
     private readonly userRepository: UsersRepository
   ) {}
@@ -145,7 +147,34 @@ export class GameService {
     return this.gameRepository.finishById(game.id)
   }
 
+  async giveCurrentPlayerExtraTurn(gameId: number) {
+    const game = await this.gameRepository.findById(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    if (!game.startedAt) {
+      throw new Error('Game is not started')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    const playerOnTurn = game.getPlayerOnTurn()
+
+    if (!playerOnTurn) {
+      throw new Error('No player on turn')
+    }
+
+    await this.gameRepository.giveExtraTurn(game.id, playerOnTurn.user.id)
+
+    return playerOnTurn.user
+  }
+
   async passTurnToNextPlayer(gameId: number): Promise<User | undefined> {
+    await this.cardRepository.flipAllUnmatchedCardsByGameId(gameId)
     const game = await this.gameRepository.findById(gameId)
 
     if (!game) {
@@ -182,5 +211,53 @@ export class GameService {
     await this.gameRepository.passTurnToPlayer(game.id, newPlayerOnTurn.user.id)
 
     return newPlayerOnTurn.user
+  }
+
+  async flipCard(gameId: number, cardId: number, userId: number) {
+    const game = await this.gameRepository.findById(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
+    if (game.finishedAt) {
+      throw new Error('Game is finished')
+    }
+
+    if (!game.startedAt) {
+      throw new Error('Game is not started')
+    }
+
+    if (!game.isPlayerInGame(userId)) {
+      throw new Error('User is not in this game')
+    }
+
+    const card = game.getCardById(cardId)
+
+    if (!card) {
+      throw new Error('Card not found')
+    }
+
+    if (card.isMatched) {
+      throw new Error('Card is already matched')
+    }
+
+    if (card.isFlipped) {
+      throw new Error('Card is already flipped')
+    }
+
+    const playerOnTurn = game.getPlayerOnTurn()
+
+    if (playerOnTurn?.user.id !== userId) {
+      throw new Error('It is not your turn')
+    }
+
+    if (playerOnTurn.cardsFlippedThisTurn >= 2) {
+      throw new Error('You have already flipped 2 cards this turn')
+    }
+
+    await this.cardRepository.flipCard(card.id, playerOnTurn)
+
+    return this.cardRepository.checkFlippedCards(game.id, playerOnTurn)
   }
 }

@@ -8,17 +8,24 @@ export interface IProps {
 }
 
 export const GameInfoWidget: FC<IProps> = ({ game }) => {
+  // TODO: write generic selectors
   const currentPlayer = game.players.find((player) => player.turnStartedAt)
 
   if (!currentPlayer) {
     return null
   }
 
+  const isTwoCardsFlipped = currentPlayer?.cardsFlippedThisTurn === 2
+  const isAllCardsFlippedAllCardsMatched =
+    game.cards.find((card) => card.isMatched) ===
+    game.cards.find((card) => card.isFlipped)
+
   return (
     <Paper p="md" shadow="xs">
       <Flex align="center">
         <Avatar key={1} mr={8} />
-        {currentPlayer?.user.username || 'unknown'}'s turn
+        {currentPlayer?.user.username || 'unknown'}
+        's turn
       </Flex>
       <ElapsedTime
         startedAt={currentPlayer.turnStartedAt}
@@ -26,6 +33,8 @@ export const GameInfoWidget: FC<IProps> = ({ game }) => {
         text="turn time left"
         timeLimitSeconds={game.turnLimitSeconds}
         shouldCountInReverse
+        isFull={isTwoCardsFlipped}
+        playerMatchedBothCards={isAllCardsFlippedAllCardsMatched}
       />
     </Paper>
   )

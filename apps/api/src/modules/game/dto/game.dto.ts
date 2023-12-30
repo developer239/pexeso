@@ -21,6 +21,9 @@ export class GamePlayer {
 
   @ApiProperty({ type: () => [Card] })
   matchedCards?: Card[]
+
+  @ApiProperty()
+  cardsFlippedThisTurn: number
 }
 
 export class Card {
@@ -118,6 +121,17 @@ export class LeaveGameRequestDto {
   gameId: number
 }
 
+export class RequestFlipCardDto {
+  @ApiProperty()
+  gameId: number
+
+  @ApiProperty()
+  userId: number
+
+  @ApiProperty()
+  cardId: number
+}
+
 export class ExceptionResponseDto {
   @ApiProperty()
   message: string
@@ -131,6 +145,7 @@ export enum WebSocketEvents {
   RequestJoinGame = 'joinGame',
   RequestLeaveGame = 'leaveGame',
   RequestStartGame = 'requestStartGame',
+  RequestFlipCard = 'requestFlipCard',
   // Outgoing
   ResponseAllGames = 'allGames',
   ResponseGameUpdated = 'gameUpdated',

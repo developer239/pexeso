@@ -1,12 +1,16 @@
 import { Progress, Space } from '@mantine/core'
 import React, { useState, useEffect } from 'react'
 
+// TODO: this needs heavy refactoring
 export interface IProps {
   readonly startedAt: string
   readonly timeLimitSeconds: number
   readonly shouldShowProgressBar?: boolean
   readonly text?: string
   readonly shouldCountInReverse?: boolean
+  readonly isFull?: boolean
+  readonly playerMatchedBothCards?: boolean
+  readonly isGameWidget?: boolean
 }
 
 export const ElapsedTime: React.FC<IProps> = ({
@@ -15,6 +19,9 @@ export const ElapsedTime: React.FC<IProps> = ({
   shouldShowProgressBar,
   text,
   shouldCountInReverse,
+  isFull,
+  playerMatchedBothCards,
+  isGameWidget,
 }) => {
   const [elapsedTime, setElapsedTime] = useState<string>('')
   const [progressValue, setProgressValue] = useState<number>(0)
@@ -61,6 +68,25 @@ export const ElapsedTime: React.FC<IProps> = ({
 
     return () => clearInterval(interval)
   }, [startedAt, timeLimitSeconds, shouldCountInReverse])
+
+  if (isFull) {
+    return (
+      <div>
+        {!isGameWidget && (
+          <>
+            <Space h="lg" />
+            <span>
+              {playerMatchedBothCards
+                ? 'Turn has ended. Cards matched. Player gets extra turn.'
+                : 'Turn has ended'}
+            </span>
+            <Space h="lg" />
+          </>
+        )}
+        <Progress radius="xs" size="xl" value={100} />
+      </div>
+    )
+  }
 
   return (
     <div>

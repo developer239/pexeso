@@ -16,6 +16,7 @@ import {
   StartGameRequestDto,
   GameCard,
   Card,
+  RequestFlipCardDto,
 } from 'src/modules/game/dto/game.dto'
 
 async function bootstrap() {
@@ -52,6 +53,7 @@ async function bootstrap() {
       GameCard,
       Card,
       WebSocketEvent,
+      RequestFlipCardDto,
     ],
   })
   SwaggerModule.setup('docs', app, document)

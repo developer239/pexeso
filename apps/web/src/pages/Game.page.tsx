@@ -48,7 +48,7 @@ export const GamePage: FC<IProps> = ({ me }) => {
     <>
       <Grid>
         <Grid.Col span={{ base: 12, md: 9 }} order={{ base: 2, md: 1 }}>
-          <GameBoard game={game} />
+          <GameBoard game={game} me={me} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 3 }} order={{ base: 1, md: 2 }}>
           <GameOptionsWidget game={game} me={me} />

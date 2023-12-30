@@ -9,6 +9,7 @@ export enum WebSocketEventEvent {
   joinGame = 'joinGame',
   leaveGame = 'leaveGame',
   requestStartGame = 'requestStartGame',
+  requestFlipCard = 'requestFlipCard',
   allGames = 'allGames',
   gameUpdated = 'gameUpdated',
   exception = 'exception',
@@ -62,6 +63,7 @@ export type GamePlayer = {
   turnStartedAt: string
   turnCount: number
   matchedCards: Card[]
+  cardsFlippedThisTurn: number
 }
 
 export type GameCard = {
@@ -109,4 +111,10 @@ export type StartGameRequestDto = {
 
 export type WebSocketEvent = {
   event: WebSocketEventEvent
+}
+
+export type RequestFlipCardDto = {
+  gameId: number
+  userId: number
+  cardId: number
 }

@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   Index,
 } from 'typeorm'
-import { User } from 'src/modules/auth/entities/user.entity'
 import { Card } from 'src/modules/game/entities/card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
@@ -44,16 +43,20 @@ export class GameCard {
   @Column({ default: false })
   isMatched: boolean
 
-  // @ts-ignore
   @ManyToOne(() => GamePlayer, (gamePlayer) => gamePlayer.matchedCards, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'matchedById' })
+  @JoinColumn({ name: 'matchedByGameId', referencedColumnName: 'gameId' })
+  @JoinColumn({ name: 'matchedByUserId', referencedColumnName: 'userId' })
   matchedBy: Relation<GamePlayer>
 
   @Exclude()
   @Column({ nullable: true })
-  matchedById: number
+  matchedByUserId: number
+
+  @Exclude()
+  @Column({ nullable: true })
+  matchedByGameId: number
 
   @Column({ default: false })
   isFlipped: boolean

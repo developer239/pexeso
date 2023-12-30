@@ -1,4 +1,4 @@
-import { Table, TableData } from '@mantine/core'
+import { Table } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { FC } from 'react'
 import { Game, User } from 'src/api/apiSchemas'

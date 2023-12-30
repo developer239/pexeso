@@ -104,4 +104,12 @@ export class Game {
   isFull() {
     return this.players.length === this.maxPlayers
   }
+
+  getCardById(cardId: number) {
+    return this.cards.find((card) => card.id === cardId)
+  }
+
+  hasAllCardsMatched() {
+    return this.cards.every((card) => card.isMatched)
+  }
 }

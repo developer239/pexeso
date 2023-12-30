@@ -9,12 +9,14 @@ import {
   MessageBody,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
+import { User } from 'src/modules/auth/entities/user.entity'
 import {
   WebSocketEvents,
   CreateGameRequestDto,
   LeaveGameRequestDto,
   JoinGameRequestDto,
   StartGameRequestDto,
+  RequestFlipCardDto,
 } from 'src/modules/game/dto/game.dto'
 import { Game } from 'src/modules/game/entities/game.entity'
 import { GameService } from 'src/modules/game/services/game.service'
@@ -52,6 +54,97 @@ export class GameGateway implements OnGatewayInit {
       const games = await this.gameService.getAllGames()
 
       this.server.emit(WebSocketEvents.ResponseAllGames, games)
+    } catch (error) {
+      Logger.error(error.message)
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
+    }
+  }
+
+  // TODO: refactor
+  @SubscribeMessage(WebSocketEvents.RequestFlipCard)
+  async handleFlipCard(
+    @MessageBody() data: RequestFlipCardDto,
+    @ConnectedSocket() client: Socket
+  ) {
+    try {
+      const roomId = this.getGameRoomId(data.gameId)
+
+      const hasFoundMatch = await this.gameService.flipCard(
+        data.gameId,
+        data.cardId,
+        data.userId
+      )
+      const game = await this.gameService.findGameById(data.gameId)
+
+      // if game finished
+      if (game.hasAllCardsMatched()) {
+        this.schedulerRegistry.deleteTimeout(this.getGameEndsTimoutId(game.id))
+        // TODO: possibly delete turn schedule timeout
+
+        await this.gameService.finishGame(data.gameId)
+
+        const finishedGame = await this.gameService.findGameById(data.gameId)
+        const allGames = await this.gameService.getAllGames()
+
+        this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
+        this.server
+          .to(roomId)
+          .emit(WebSocketEvents.ResponseGameUpdated, finishedGame)
+      }
+      // if match found
+      else if (hasFoundMatch) {
+        const currentPlayer = game.getPlayerOnTurn()!
+
+        if (
+          this.schedulerRegistry.doesExist(
+            'timeout',
+            this.getPassTurnTimeoutId(game.id, currentPlayer!.user.id)
+          )
+        ) {
+          this.schedulerRegistry.deleteTimeout(
+            this.getPassTurnTimeoutId(game.id, currentPlayer!.user.id)
+          )
+        }
+
+        const passTurnCallback = async () => {
+          await this.scheduleAutoPassTurnToNextPlayer(
+            game.id,
+            roomId,
+            currentPlayer.user
+          )
+        }
+
+        setTimeout(() => {
+          passTurnCallback().catch((error) => Logger.error(error))
+        }, game.cardVisibleTimeSeconds * 1000)
+
+        this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
+      } else {
+        const currentPlayer = game.getPlayerOnTurn()!
+
+        if (currentPlayer.cardsFlippedThisTurn === 2) {
+          if (
+            this.schedulerRegistry.doesExist(
+              'timeout',
+              this.getPassTurnTimeoutId(game.id, currentPlayer!.user.id)
+            )
+          ) {
+            this.schedulerRegistry.deleteTimeout(
+              this.getPassTurnTimeoutId(game.id, currentPlayer!.user.id)
+            )
+          }
+
+          const passTurnCallback = async () => {
+            await this.scheduleAutoPassTurnToNextPlayer(game.id, roomId)
+          }
+
+          setTimeout(() => {
+            passTurnCallback().catch((error) => Logger.error(error))
+          }, game.cardVisibleTimeSeconds * 1000)
+        }
+
+        this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
+      }
     } catch (error) {
       Logger.error(error.message)
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
@@ -156,7 +249,8 @@ export class GameGateway implements OnGatewayInit {
   // TODO: clear timeout when the game is deleted
   private async scheduleAutoPassTurnToNextPlayer(
     gameId: number,
-    roomId: string
+    roomId: string,
+    targetPlayer?: User
   ) {
     try {
       const game = await this.gameService.findGameById(gameId)
@@ -165,7 +259,9 @@ export class GameGateway implements OnGatewayInit {
         return
       }
 
-      const nextPlayer = await this.gameService.passTurnToNextPlayer(game.id)
+      const nextPlayer = targetPlayer
+        ? await this.gameService.giveCurrentPlayerExtraTurn(gameId)
+        : await this.gameService.passTurnToNextPlayer(game.id)
       const updatedGame = await this.gameService.findGameById(game.id)
 
       this.server
