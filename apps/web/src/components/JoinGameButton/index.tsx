@@ -47,7 +47,8 @@ export const JoinGameButton: FC<IProps> = ({ gameId, me, game }) => {
         <ElapsedTime
           startedAt={game.startedAt!}
           timeLimitSeconds={game.timeLimitSeconds}
-          text="Started:"
+          // TODO: this text is doubled
+          text=" "
         />
       </Button>
     )

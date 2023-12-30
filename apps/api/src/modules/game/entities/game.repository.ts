@@ -7,7 +7,7 @@ import { CardRepository } from 'src/modules/game/entities/card.repository'
 import { GameCard } from 'src/modules/game/entities/game-card.entity'
 import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
 import { Game } from 'src/modules/game/entities/game.entity'
-// import { shuffleArray } from 'src/utils/common'
+import { shuffleArray } from 'src/utils/common'
 
 @Injectable()
 export class GameRepository {
@@ -118,8 +118,8 @@ export class GameRepository {
       requestedNumberOfCards
     )
     const pairedCardsStack = [...cards, ...cards]
-    // TODO: shuffle
-    // shuffleArray(pairedCardsStack)
+
+    shuffleArray(pairedCardsStack)
 
     const gameCardsToAdd: GameCard[] = []
     for (let row = 0; row < game.gridSize.height; row += 1) {
