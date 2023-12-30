@@ -54,4 +54,45 @@ export class Game {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date
+
+  isPlayerInGame(userId: number) {
+    return this.players.find((player) => player.user.id === userId)
+  }
+
+  hasPlayers() {
+    return this.players.length > 0
+  }
+
+  hasSinglePlayer() {
+    return this.players.length === 1
+  }
+
+  getPlayerOnTurn(): Relation<GamePlayer | undefined> {
+    return this.players.find((player) => player.isOnTurn)
+  }
+
+  getPlayerToPassTurn() {
+    const currentPlayerIndex = this.players.findIndex(
+      (player) => player.isOnTurn
+    )
+    const nextPlayerIndex = (currentPlayerIndex + 1) % this.players.length
+
+    // TODO: false positive?
+    // eslint-disable-next-line security/detect-object-injection
+    return this.players[nextPlayerIndex]
+  }
+
+  getMsTillGameEnds() {
+    const gameEndsAt = new Date(
+      this.startedAt!.getTime() + this.timeLimitSeconds * 1000
+    )
+
+    return gameEndsAt.getTime() - Date.now()
+  }
+
+  getMsTillTurnEnds() {
+    const turnEndsAt = new Date(Date.now() + this.turnLimitSeconds * 1000)
+
+    return turnEndsAt.getTime() - Date.now()
+  }
 }

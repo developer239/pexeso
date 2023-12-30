@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { SchedulerRegistry } from '@nestjs/schedule'
 import {
   WebSocketGateway,
@@ -16,6 +15,7 @@ import {
   JoinGameRequestDto,
   StartGameRequestDto,
 } from 'src/modules/game/dto/game.dto'
+import { Game } from 'src/modules/game/entities/game.entity'
 import { GameService } from 'src/modules/game/services/game.service'
 
 @WebSocketGateway({
@@ -40,6 +40,7 @@ export class GameGateway implements OnGatewayInit {
   async handleRequestAllGames(@ConnectedSocket() client: Socket) {
     try {
       const games = await this.gameService.getAllGames()
+
       this.server.emit(WebSocketEvents.ResponseAllGames, games)
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
@@ -57,7 +58,7 @@ export class GameGateway implements OnGatewayInit {
 
       await client.join(roomId)
 
-      this.server.to(roomId).emit(WebSocketEvents.ResponseGameCreated, game)
+      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
       this.server.emit(WebSocketEvents.ResponseAllGames, [game])
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
@@ -87,20 +88,24 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     try {
-      await this.gameService.passTurnToNextPlayer(data.gameId)
-      await this.gameService.leaveGame(data.userId, data.gameId)
-      const game = await this.gameService.findGame(data.gameId)
+      const game = await this.gameService.leaveGame(data.userId, data.gameId)
+
+      const roomId = this.getGameRoomId(data.gameId)
+      await client.leave(roomId)
+
+      if (game?.startedAt) {
+        await this.gameService.passTurnToNextPlayer(data.gameId)
+      }
 
       if (game) {
-        const roomId = this.getGameRoomId(game.id)
-        await client.leave(roomId)
-
-        this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
-        this.server.emit(WebSocketEvents.ResponseAllGames, [game])
-      } else {
-        const allGames = await this.gameService.getAllGames()
-        this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
+        const updatedGame = await this.gameService.findGameById(data.gameId)
+        this.server
+          .to(roomId)
+          .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
       }
+
+      const allGames = await this.gameService.getAllGames()
+      this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
     } catch (error) {
       client.emit(WebSocketEvents.ResponseException, { message: error.message })
     }
@@ -112,91 +117,100 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     try {
-      // start game
+      const roomId = this.getGameRoomId(data.gameId)
+
       const game = await this.gameService.startGame(data.userId, data.gameId)
-
-      const roomId = this.getGameRoomId(game.id)
-      await client.join(roomId)
-
-      // update room
-      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
-
       const games = await this.gameService.getAllGames()
+
+      this.server.to(roomId).emit(WebSocketEvents.ResponseGameUpdated, game)
       this.server.emit(WebSocketEvents.ResponseAllGames, games)
 
-      // Schedule the first turn
-      const scheduleTurn = async (gameId: number) => {
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        const roomId = this.getGameRoomId(game.id)
+      this.scheduleFinishGame(game, roomId)
 
-        const nextPlayer = await this.gameService.passTurnToNextPlayer(gameId)
-        const updatedGame = await this.gameService.findGame(gameId)
+      await this.scheduleAutoPassTurnToNextPlayer(game.id, roomId)
+    } catch (error) {
+      client.emit(WebSocketEvents.ResponseException, { message: error.message })
+    }
+  }
 
-        this.server
-          .to(roomId)
-          .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
+  // TODO: clear timeout when the game is deleted
+  private async scheduleAutoPassTurnToNextPlayer(
+    gameId: number,
+    roomId: string
+  ) {
+    try {
+      const game = await this.gameService.findGameById(gameId)
 
-        const turnEndsAt = new Date(Date.now() + game.turnLimitSeconds * 1000)
-        const millisecondsTillTurnEnd = turnEndsAt.getTime() - Date.now()
-        const timeoutId = setTimeout(
-          () => scheduleTurn(gameId),
-          millisecondsTillTurnEnd
-        )
-
-        const timeoutKey = this.getPassTurnTimeoutId(gameId, nextPlayer!.id)
-        if (this.schedulerRegistry.doesExist('timeout', timeoutKey)) {
-          this.schedulerRegistry.deleteTimeout(timeoutKey)
-        }
-        this.schedulerRegistry.addTimeout(timeoutKey, timeoutId)
+      if (game.finishedAt) {
+        return
       }
 
-      await scheduleTurn(game.id)
+      const nextPlayer = await this.gameService.passTurnToNextPlayer(game.id)
+      const updatedGame = await this.gameService.findGameById(game.id)
 
-      // Schedule end game
-      const gameEndsAt = new Date(
-        game.startedAt!.getTime() + game.timeLimitSeconds * 1000
+      this.server
+        .to(roomId)
+        .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
+
+      const millisecondsTillTurnEnd = game.getMsTillTurnEnds()
+      const timeoutId = setTimeout(
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        () => this.scheduleAutoPassTurnToNextPlayer(game.id, roomId),
+        millisecondsTillTurnEnd
       )
-      const millisecondsTillGameEnds = gameEndsAt.getTime() - Date.now()
-      const timeoutGameEnds = setTimeout(async () => {
-        await this.gameService.endGame(game)
-        const currentPlayerOnTurn =
-          await this.gameService.getCurrentPlayerOnTurn(game.id)
 
-        const timeoutKey = this.getPassTurnTimeoutId(
-          game.id,
-          currentPlayerOnTurn.id
-        )
+      const timeoutKey = this.getPassTurnTimeoutId(game.id, nextPlayer!.id)
+      if (this.schedulerRegistry.doesExist('timeout', timeoutKey)) {
         this.schedulerRegistry.deleteTimeout(timeoutKey)
+      }
+      this.schedulerRegistry.addTimeout(timeoutKey, timeoutId)
+    } catch (error) {
+      // TODO: use nest logger
+      // eslint-disable-next-line no-console
+      console.error(error)
+    }
+  }
 
-        const updatedGame = await this.gameService.findGame(game.id)
+  // TODO: clear timeout when the game is deleted
+  private scheduleFinishGame(game: Game, roomId: string) {
+    try {
+      const millisecondsTillGameEnds = game.getMsTillGameEnds()
+
+      const callback = async () => {
+        await this.gameService.finishGame(game.id)
+
+        const updatedGame = await this.gameService.findGameById(game.id)
+        const allGames = await this.gameService.getAllGames()
 
         this.server
           .to(roomId)
           .emit(WebSocketEvents.ResponseGameUpdated, updatedGame)
-        this.server.emit(
-          WebSocketEvents.ResponseAllGames,
-          await this.gameService.getAllGames()
-        )
-      }, millisecondsTillGameEnds)
+        this.server.emit(WebSocketEvents.ResponseAllGames, allGames)
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      const timeoutGameEnds = setTimeout(callback, millisecondsTillGameEnds)
 
       this.schedulerRegistry.addTimeout(
         this.getGameEndsTimoutId(game.id),
         timeoutGameEnds
       )
     } catch (error) {
-      client.emit(WebSocketEvents.ResponseException, { message: error.message })
+      // TODO: use nest logger
+      // eslint-disable-next-line no-console
+      console.error(error)
     }
   }
 
-  getPassTurnTimeoutId(gameId: number, playerId: number): string {
+  private getPassTurnTimeoutId(gameId: number, playerId: number): string {
     return `game-${gameId}-player-${playerId}-timeout`
   }
 
-  getGameEndsTimoutId(gameId: number): string {
+  private getGameEndsTimoutId(gameId: number): string {
     return `game-${gameId}-end-timeout`
   }
 
-  getGameRoomId(gameId: number): string {
+  private getGameRoomId(gameId: number): string {
     return `game-${gameId}`
   }
 }

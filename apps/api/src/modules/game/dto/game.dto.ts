@@ -89,15 +89,18 @@ export class ExceptionResponseDto {
   message: string
 }
 
+// TODO: refactor rename make keys match values
 export enum WebSocketEvents {
+  // Incoming
   RequestAllGames = 'requestAllGames',
   RequestCreateGame = 'createGame',
   RequestJoinGame = 'joinGame',
   RequestLeaveGame = 'leaveGame',
-  ResponseGameCreated = 'gameCreated',
-  ResponseGameUpdated = 'gameUpdated',
-  ResponseAllGames = 'allGames',
   RequestStartGame = 'requestStartGame',
+  // Outgoing
+  ResponseAllGames = 'allGames',
+  ResponseGameUpdated = 'gameUpdated',
+  // Errors
   ResponseException = 'exception',
 }
 

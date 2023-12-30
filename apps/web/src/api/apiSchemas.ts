@@ -8,10 +8,9 @@ export enum WebSocketEventEvent {
   createGame = 'createGame',
   joinGame = 'joinGame',
   leaveGame = 'leaveGame',
-  gameCreated = 'gameCreated',
-  gameUpdated = 'gameUpdated',
-  allGames = 'allGames',
   requestStartGame = 'requestStartGame',
+  allGames = 'allGames',
+  gameUpdated = 'gameUpdated',
   exception = 'exception',
 }
 

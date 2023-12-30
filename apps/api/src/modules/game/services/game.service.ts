@@ -1,82 +1,48 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { gameConfig, GameConfigType } from 'src/config/game.config'
+import { Injectable } from '@nestjs/common'
 import { User } from 'src/modules/auth/entities/user.entity'
-import { GamePlayer } from 'src/modules/game/entities/game-player.entity'
+import { UsersRepository } from 'src/modules/auth/entities/users.repository'
 import { Game } from 'src/modules/game/entities/game.entity'
+import { GameRepository } from 'src/modules/game/entities/game.repository'
 
 @Injectable()
 export class GameService {
   constructor(
-    // TODO: create separate service for each repository
-    @InjectRepository(Game)
-    private readonly gameRepository: Repository<Game>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(GamePlayer)
-    private readonly gamePlayerRepository: Repository<GamePlayer>,
-    @Inject(gameConfig.KEY)
-    private readonly gameConfigValues: GameConfigType
+    private readonly gameRepository: GameRepository,
+    private readonly userRepository: UsersRepository
   ) {}
 
-  async findGame(id: number) {
-    const game = await this.gameRepository.findOne({
-      where: { id },
-      relations: ['host', 'players.user'],
-    })
+  async findGameById(gameId: number) {
+    const game = await this.gameRepository.findById(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
 
     return game
   }
 
   async createGame(hostId: number): Promise<Game> {
-    const host = await this.userRepository.findOne({ where: { id: hostId } })
+    const host = await this.userRepository.findById(hostId)
     if (!host) {
       throw new Error('User not found')
     }
 
-    const game = new Game()
-    game.host = host
-    game.gridSize = {
-      width: this.gameConfigValues.gridSizeW,
-      height: this.gameConfigValues.gridSizeH,
-    }
-    game.maxPlayers = this.gameConfigValues.maxPlayers
-    game.timeLimitSeconds = this.gameConfigValues.gameTimeLimitS
-    game.turnLimitSeconds = this.gameConfigValues.turnTimeLimitS
-    game.cardVisibleTimeSeconds = this.gameConfigValues.cardVisibleTimeS
-    await this.gameRepository.save(game)
-
-    const gamePlayer = new GamePlayer()
-    gamePlayer.game = game
-    gamePlayer.user = host
-    await this.gamePlayerRepository.save(gamePlayer)
-
-    return (await this.findGame(game.id))!
+    return this.gameRepository.createGameForHost(host)
   }
 
   getAllGames(): Promise<Game[]> {
-    return this.gameRepository
-      .createQueryBuilder('game')
-      .leftJoinAndSelect('game.players', 'players')
-      .leftJoinAndSelect('players.user', 'user')
-      .leftJoinAndSelect('game.host', 'host')
-      .where('game.finishedAt IS NULL')
-      .getMany()
+    return this.gameRepository.findAll()
   }
 
   async joinGame(userId: number, gameId: number): Promise<Game> {
-    const user = await this.userRepository.findOne({ where: { id: userId } })
-    const game = await this.findGame(gameId)
+    const user = await this.userRepository.findById(userId)
+    const game = await this.gameRepository.findById(gameId)
 
     if (!user || !game) {
       throw new Error('User or Game not found')
     }
 
-    const isPlayerInGame = game.players.find(
-      (player) => player.user.id === userId
-    )
-    if (isPlayerInGame) {
+    if (game.isPlayerInGame(userId)) {
       return game
     }
 
@@ -92,16 +58,11 @@ export class GameService {
       throw new Error('Game is full')
     }
 
-    await this.gamePlayerRepository.save({ game, user })
-
-    return (await this.findGame(game.id))!
+    return this.gameRepository.addPlayer(game.id, user.id)
   }
 
   async leaveGame(userId: number, gameId: number) {
-    const game = await this.gameRepository.findOne({
-      where: { id: gameId },
-      relations: ['players', 'players.user'],
-    })
+    const game = await this.gameRepository.findById(gameId)
 
     if (!game) {
       throw new Error('Game not found')
@@ -111,29 +72,25 @@ export class GameService {
       throw new Error('Game is finished')
     }
 
-    const gamePlayer = game.players.find((player) => player.user.id === userId)
-    if (!gamePlayer) {
+    if (!game.isPlayerInGame(userId)) {
       throw new Error('User is not in this game')
     }
 
-    await this.gamePlayerRepository.delete({
-      gameId: gamePlayer.gameId,
-      userId: gamePlayer.userId,
-    })
+    const updatedGame = await this.gameRepository.removePlayer(game.id, userId)
 
-    game.players = game.players.filter((player) => player.user.id !== userId)
-
-    if (game.players.length === 0) {
-      await this.gameRepository.delete({ id: gameId })
-    } else {
-      const newHost = game.players[0].user
-
-      await this.gameRepository.update({ id: gameId }, { host: newHost })
+    if (updatedGame.hasPlayers()) {
+      return this.gameRepository.replaceHost(
+        updatedGame.id,
+        updatedGame.players[0].user
+      )
     }
+
+    await this.gameRepository.deleteById(updatedGame.id)
+    return undefined
   }
 
   async startGame(userId: number, gameId: number): Promise<Game> {
-    const game = await this.findGame(gameId)
+    const game = await this.gameRepository.findById(gameId)
 
     if (!game) {
       throw new Error('Game not found')
@@ -151,32 +108,28 @@ export class GameService {
       throw new Error('Only host can start the game')
     }
 
-    game.startedAt = new Date()
-    await this.gameRepository.update(
-      { id: gameId },
-      { startedAt: game.startedAt }
-    )
-
-    return game
+    return this.gameRepository.startGameById(game.id)
   }
 
-  getCurrentPlayerOnTurn = async (gameId: number): Promise<User> => {
-    const game = await this.findGame(gameId)
+  getCurrentPlayerOnTurn = async (
+    gameId: number
+  ): Promise<User | undefined> => {
+    const game = await this.gameRepository.findById(gameId)
 
     if (!game) {
       throw new Error('Game not found')
     }
 
-    const currentPlayer = game.players.find((player) => player.isOnTurn)
-
-    if (!currentPlayer) {
-      throw new Error('No player on turn')
-    }
-
-    return currentPlayer.user
+    return game.getPlayerOnTurn()?.user
   }
 
-  async endGame(game: Game) {
+  async finishGame(gameId: number) {
+    const game = await this.gameRepository.findById(gameId)
+
+    if (!game) {
+      throw new Error('Game not found')
+    }
+
     if (!game.startedAt) {
       throw new Error('Game is not started')
     }
@@ -185,76 +138,45 @@ export class GameService {
       throw new Error('Game is finished')
     }
 
-    game.finishedAt = new Date()
-
-    await this.gameRepository.update(
-      { id: game.id },
-      { finishedAt: game.finishedAt }
-    )
+    return this.gameRepository.finishById(game.id)
   }
 
   async passTurnToNextPlayer(gameId: number): Promise<User | undefined> {
-    const game = await this.findGame(gameId)
+    const game = await this.gameRepository.findById(gameId)
 
     if (!game) {
       throw new Error('Game not found')
-    }
-
-    if (!game.startedAt) {
-      return
     }
 
     if (game.finishedAt) {
       throw new Error('Game is finished')
     }
 
-    const currentPlayerIndex = game.players.findIndex(
-      (player) => player.isOnTurn
-    )
-
-    let nextPlayerIndex = -1
-    if (game.players.length > 1) {
-      if (currentPlayerIndex === -1) {
-        nextPlayerIndex = 0
-      } else {
-        nextPlayerIndex =
-          currentPlayerIndex + 1 === game.players.length
-            ? 0
-            : currentPlayerIndex + 1
-      }
-    } else {
-      nextPlayerIndex = 0
+    if (game.players.length === 0) {
+      throw new Error('Game has no players')
     }
 
-    await this.gamePlayerRepository.update(
-      {
-        gameId: game.id,
-        // eslint-disable-next-line security/detect-object-injection
-        userId: game.players[nextPlayerIndex].user.id,
-      },
-      {
-        isOnTurn: true,
-        // eslint-disable-next-line security/detect-object-injection
-        turnCount: game.players[nextPlayerIndex].turnCount + 1,
-      }
-    )
-
-    if (currentPlayerIndex !== -1 && game.players.length > 1) {
-      await this.gamePlayerRepository.update(
-        {
-          gameId: game.id,
-          // eslint-disable-next-line security/detect-object-injection
-          userId: game.players[currentPlayerIndex].user.id,
-        },
-        {
-          isOnTurn: false,
-          // eslint-disable-next-line security/detect-object-injection
-          turnCount: game.players[currentPlayerIndex].turnCount + 1,
-        }
-      )
+    if (!game.startedAt) {
+      throw new Error('Game is not started')
     }
 
-    // eslint-disable-next-line security/detect-object-injection
-    return game.players[nextPlayerIndex].user
+    const currentPlayer = game.getPlayerOnTurn()
+
+    if (!currentPlayer) {
+      const targetPlayer = game.players[0].user
+      await this.gameRepository.passTurnToPlayer(game.id, targetPlayer.id)
+
+      return targetPlayer
+    }
+
+    if (game.hasSinglePlayer()) {
+      await this.gameRepository.passTurnToPlayer(game.id, currentPlayer.user.id)
+      return currentPlayer.user
+    }
+
+    const newPlayerOnTurn = game.getPlayerToPassTurn()
+    await this.gameRepository.passTurnToPlayer(game.id, newPlayerOnTurn.user.id)
+
+    return newPlayerOnTurn.user
   }
 }

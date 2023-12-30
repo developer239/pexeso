@@ -16,7 +16,7 @@ export const CreateGameButton: FC<IProps> = (props) => {
   const navigate = useNavigate()
   const createGame = useSocketMutation<CreateGameRequestDto>(
     WebSocketEventEvent.createGame,
-    WebSocketEventEvent.gameCreated
+    WebSocketEventEvent.gameUpdated
   )
 
   const handleCreateGame = () => {

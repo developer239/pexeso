@@ -9,6 +9,10 @@ export class UsersRepository {
     @InjectRepository(User) private readonly usersRepository: Repository<User>
   ) {}
 
+  findById(id: number) {
+    return this.usersRepository.findOne({ where: { id } })
+  }
+
   create(username: string) {
     const newUser = this.usersRepository.create({ username })
     return this.usersRepository.save(newUser)
