@@ -7,8 +7,6 @@
 
 - [Setup](#setup)
 - [Development](#development)
-- [Database](#database)
-- [Testing](#testing)
 
 ## Setup
 
