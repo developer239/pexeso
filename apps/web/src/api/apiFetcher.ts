@@ -1,7 +1,6 @@
 import { ApiContext } from './apiContext'
 
-// TODO: use config
-const baseUrl = 'http://localhost:8080'
+const baseUrl = import.meta.env.VITE_API_URL
 
 export type ErrorWrapper<TError> =
   | TError

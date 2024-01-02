@@ -20,8 +20,7 @@ export const WebSocketProvider: FC<{ readonly children: React.ReactNode }> = ({
   const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
-    // TODO: set from config
-    const newSocket = io('http://localhost:8080/games')
+    const newSocket = io(`${import.meta.env.VITE_API_URL}/games`)
     setSocket(newSocket)
 
     return () => {
