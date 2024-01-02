@@ -1,5 +1,7 @@
 # Pexeso
 
+![Preview Desktop](./web-preview.png)
+
 ## Apps
 
 | Name             | Platform | Link                                                   |
