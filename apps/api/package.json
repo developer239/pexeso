@@ -14,7 +14,8 @@
     "build": "nest build",
     "dev": "NODE_ENV=development nest start --watch",
     "test": "vitest --no-threads",
-    "lint": "eslint --ext .ts src"
+    "lint": "eslint --ext .ts src",
+    "start": "node -r ./dist/main.js"
   },
   "dependencies": {
     "@nestjs/common": "10.3.0",

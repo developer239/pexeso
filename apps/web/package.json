@@ -1,5 +1,5 @@
 {
-  "name": "mantine-vite-template",
+  "name": "pexeso-web",
   "version": "0.0.1",
   "scripts": {
     "dev": "vite",
@@ -14,7 +14,8 @@
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "codegen:init": "npx openapi-codegen init",
-    "codegen:run": "npx openapi-codegen gen api"
+    "codegen:run": "npx openapi-codegen gen api",
+    "start": "serve dist -s"
   },
   "dependencies": {
     "@mantine/core": "7.3.2",
@@ -23,6 +24,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.21.0",
+    "serve": "^14.2.1",
     "socket.io-client": "^4.7.2"
   },
   "devDependencies": {

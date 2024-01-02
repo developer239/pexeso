@@ -16,7 +16,12 @@
     "test": "turbo run test",
     "format": "prettier --write '*/**/*.{ts,tsx,css,md,json}'",
     "prepare:husky": "husky install",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "build:api": "turbo run build --filter=pexeso-api",
+    "build:web": "turbo run build --filter=pexeso-web",
+    "heroku-postbuild": "if [ $CLIENT_ENV ]; then yarn run prod-web; elif [ $SERVER_ENV ]; then yarn run prod-api; else echo no environment detected, please set CLIENT_ENV or SERVER_ENV; fi",
+    "prod-api": "yarn run build:api",
+    "prod-web": "yarn run build:web"
   },
   "devDependencies": {
     "@commitlint/cli": "18.4.3",
