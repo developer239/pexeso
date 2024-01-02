@@ -1,6 +1,6 @@
 # Pexeso
 
-![Preview Desktop](./web-preview.png)
+![Main Preview](./main-preview.png)
 
 ## Apps
 
