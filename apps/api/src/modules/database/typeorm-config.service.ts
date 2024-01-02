@@ -27,6 +27,10 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         migrationsDir: 'src/modules/database/migrations',
         subscribersDir: 'subscriber',
       },
+      migrationsRun: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     } as TypeOrmModuleOptions
   }
 }
