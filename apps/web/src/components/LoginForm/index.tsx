@@ -19,7 +19,13 @@ export const LoginForm = () => {
   useEffect(() => {
     if (data?.accessToken) {
       login(data.accessToken)
-      navigate('/lobby')
+
+      const currentPath = window.location.pathname
+      if (currentPath === '/') {
+        navigate('/lobby')
+      } else {
+        navigate(currentPath)
+      }
     }
   }, [data])
 
