@@ -2,10 +2,10 @@
 
 ## Apps
 
-| Name             | Platform | Link  |
-| ---------------- | -------- | ----- |
-| [API](/apps/api) | Backend  | [WIP] |
-| [Web](/apps/web) | Frontend | [WIP] |
+| Name             | Platform | Link                                                   |
+| ---------------- | -------- | ------------------------------------------------------ |
+| [API](/apps/api) | Backend  | https://pexeso-backend-c4d4378a243d.herokuapp.com/docs |
+| [Web](/apps/web) | Frontend | https://pexeso-frontend-6b654a9f2461.herokuapp.com     |
 
 ## Development
 
